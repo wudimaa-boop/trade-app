@@ -8,14 +8,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans SC', sans-serif; transition: background 0.3s; }
+        body { font-family: 'Noto Sans SC', sans-serif; transition: background 0.3s, color 0.3s; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .glass { backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .dark { background: #0f172a; color: #e2e8f0; }
+        .dark { background: #0f172a; color: #f1f5f9; }
         .light { background: #f8fafc; color: #1e293b; }
-        .dark .card-bg { background: rgba(30, 41, 59, 0.7); }
+        .dark .card-bg { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .dark input, .dark select { background: rgba(15, 23, 42, 0.6) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        .dark select option { background: #1e293b; color: #ffffff; }
         .light .card-bg { background: rgba(255, 255, 255, 0.9); border: 1px solid #e2e8f0; }
-        .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); }
+        .light input, .light select { background: #ffffff !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; }
+        .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4); border-color: transparent !important; }
     </style>
 </head>
 <body class="dark flex items-center justify-center min-h-screen p-4" id="bodyTag">
@@ -24,31 +27,31 @@
         <div class="flex justify-between items-center px-2">
             <div>
                 <h1 class="text-xl font-black tracking-tighter text-yellow-500 uppercase">RiskMaster</h1>
-                <p class="text-[9px] opacity-50 font-bold tracking-widest uppercase">Pro Calculator</p>
+                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase">Pro Calculator</p>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="toggleTheme()" class="text-lg">🌓</button>
-                <div onclick="manualRate()" class="flex items-center gap-1.5 text-[10px] bg-slate-800/50 px-2.5 py-1 rounded-full border border-white/5 cursor-pointer">
-                    <span id="statusDot" class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
-                    <span class="font-mono" id="usdjpyRate">同步中...</span>
+                <button onclick="toggleTheme()" class="text-xl p-2 hover:scale-110 transition-transform">🌓</button>
+                <div onclick="manualRate()" class="flex items-center gap-1.5 text-[10px] bg-slate-800/60 px-2.5 py-1.5 rounded-full border border-white/10 cursor-pointer hover:bg-slate-700 transition-colors">
+                    <span id="statusDot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+                    <span class="font-mono text-slate-300" id="usdjpyRate">同步中...</span>
                 </div>
             </div>
         </div>
 
-        <div class="flex bg-slate-900/40 p-1 rounded-2xl border border-white/5">
-            <button onclick="setAccount('standard')" id="btn-standard" class="flex-1 py-2 text-xs rounded-xl transition-all">美金账户</button>
-            <button onclick="setAccount('cent')" id="btn-cent" class="flex-1 py-2 text-xs rounded-xl transition-all">美分账户</button>
+        <div class="flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5">
+            <button onclick="setAccount('standard')" id="btn-standard" class="flex-1 py-2.5 text-xs rounded-xl transition-all font-bold">美金账户</button>
+            <button onclick="setAccount('cent')" id="btn-cent" class="flex-1 py-2.5 text-xs rounded-xl transition-all font-bold text-slate-500">美分账户</button>
         </div>
 
-        <div class="card-bg glass rounded-[2rem] p-6 shadow-2xl space-y-5">
-            <div class="grid grid-cols-2 gap-4">
+        <div class="card-bg glass rounded-[2.5rem] p-7 shadow-2xl space-y-6">
+            <div class="grid grid-cols-2 gap-5">
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold opacity-50 ml-1 mb-1 block uppercase">单笔风险金额 (USD)</label>
-                    <input type="number" id="riskAmount" class="w-full bg-slate-900/20 border border-white/10 rounded-2xl py-3.5 px-4 text-xl font-bold outline-none focus:border-yellow-500">
+                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-2 block uppercase tracking-wider">单笔风险金额 (USD)</label>
+                    <input type="number" id="riskAmount" class="w-full rounded-2xl py-4 px-5 text-2xl font-bold outline-none focus:ring-2 focus:ring-yellow-500/50">
                 </div>
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold opacity-50 ml-1 mb-1 block uppercase">交易品种</label>
-                    <select id="symbol" class="w-full bg-slate-900/20 border border-white/10 rounded-2xl p-3.5 text-sm font-bold outline-none cursor-pointer">
+                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-2 block uppercase tracking-wider">交易品种</label>
+                    <select id="symbol" class="w-full rounded-2xl p-4 text-base font-bold outline-none appearance-none">
                         <option value="XAUUSD">黄金 (XAUUSD)</option>
                         <option value="XAGUSD">白银 (XAGUSD)</option>
                         <option value="USOIL">美原油 (WTI)</option>
@@ -58,48 +61,38 @@
                         <option value="ETHUSD">以太坊 (ETH)</option>
                     </select>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold opacity-50 ml-1 mb-1 block uppercase">入场价</label>
-                    <input type="number" id="entryPrice" step="0.001" class="mono w-full bg-slate-900/20 border border-white/10 rounded-2xl p-3.5 font-bold outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold opacity-50 ml-1 mb-1 block uppercase">止损价</label>
-                    <input type="number" id="stopPrice" step="0.001" class="mono w-full bg-slate-900/20 border border-white/10 rounded-2xl p-3.5 font-bold outline-none">
-                </div>
+                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-2 block uppercase tracking-wider">入场价</label><input type="number" id="entryPrice" step="0.001" class="mono w-full rounded-2xl p-4 font-bold outline-none text-lg"></div>
+                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-2 block uppercase tracking-wider">止损价</label><input type="number" id="stopPrice" step="0.001" class="mono w-full rounded-2xl p-4 font-bold outline-none text-lg"></div>
             </div>
 
-            <div>
-                <label class="text-[10px] font-bold opacity-50 ml-1 mb-2 block uppercase tracking-wider">分仓数量 (单)</label>
-                <div class="flex gap-3">
-                    <button onclick="setSplit(2)" id="split-2" class="flex-1 py-3 rounded-2xl border border-white/5 bg-slate-900/40 font-black transition-all">2</button>
-                    <button onclick="setSplit(10)" id="split-10" class="flex-1 py-3 rounded-2xl border border-white/5 bg-slate-900/40 font-black transition-all">10</button>
-                </div>
+            <div class="flex gap-4">
+                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 font-black text-lg">2单</button>
+                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 font-black text-lg">10单</button>
             </div>
         </div>
 
-        <div id="resultBox" class="bg-yellow-500 rounded-[2.2rem] p-7 text-slate-900 shadow-xl relative active:scale-95 transition-transform cursor-pointer" onclick="copyLots()">
-            <div class="flex justify-between items-end relative z-10">
+        <div id="resultBox" class="bg-yellow-500 rounded-[2.5rem] p-7 text-slate-900 shadow-xl relative active:scale-95 transition-transform cursor-pointer" onclick="copyLots()">
+            <div class="flex justify-between items-end">
                 <div class="flex-1">
-                    <p class="text-[11px] font-black uppercase opacity-60 mb-1">建议单笔开仓 (点击复制)</p>
-                    <div class="flex items-baseline gap-1">
-                        <span id="eachLot" class="text-7xl font-black tracking-tighter leading-none">0.00</span>
-                        <span class="text-sm font-bold opacity-60 uppercase">Lots</span>
-                    </div>
+                    <p class="text-[11px] font-black uppercase opacity-70 mb-2">建议单笔开仓 (点击复制)</p>
+                    <div class="flex items-baseline gap-1"><span id="eachLot" class="text-7xl font-black tracking-tighter leading-none">0.00</span><span class="text-sm font-bold opacity-60 uppercase">Lots</span></div>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black opacity-50 uppercase mb-1">总计手数</p>
+                    <p class="text-[10px] font-black opacity-60 uppercase mb-1">总手数</p>
                     <p id="resultLots" class="text-2xl font-black tracking-tighter">0.00</p>
                 </div>
             </div>
             
-            <div id="fiboBox" class="mt-6 pt-4 border-t border-slate-900/10 grid grid-cols-2 gap-4 text-center">
-                <div class="bg-slate-900/5 p-3 rounded-2xl">
-                    <p class="text-[9px] font-black opacity-50 uppercase mb-1">TP 2.0 (1:2 盈亏)</p>
-                    <p id="tp20" class="text-xl font-black mono tracking-tight">-</p>
+            <div class="mt-8 pt-5 border-t border-slate-900/15 grid grid-cols-2 gap-5 text-center">
+                <div class="bg-slate-900/10 p-3 rounded-2xl">
+                    <p class="text-[9px] font-black opacity-60 uppercase mb-1">TP 2.0 (1:2)</p>
+                    <p id="tp20" class="text-xl font-black mono tracking-tight text-slate-900">-</p>
+                    <p id="profit20" class="text-[10px] font-black text-green-700 mt-1">+$0.00</p>
                 </div>
-                <div class="bg-slate-900/5 p-3 rounded-2xl">
-                    <p class="text-[9px] font-black opacity-50 uppercase mb-1">TP 4.236 (趋势位)</p>
-                    <p id="tp4236" class="text-xl font-black mono tracking-tight">-</p>
+                <div class="bg-slate-900/10 p-3 rounded-2xl">
+                    <p class="text-[9px] font-black opacity-60 uppercase mb-1">TP 4.236</p>
+                    <p id="tp4236" class="text-xl font-black mono tracking-tight text-slate-900">-</p>
+                    <p id="profit4236" class="text-[10px] font-black text-green-700 mt-1">+$0.00</p>
                 </div>
             </div>
         </div>
@@ -117,12 +110,8 @@
         }
 
         function manualRate() {
-            const newVal = prompt("手动输入汇率:", rates.JPY);
-            if(newVal) {
-                rates.JPY = parseFloat(newVal);
-                document.getElementById('usdjpyRate').innerText = `MANUAL ${rates.JPY.toFixed(2)}`;
-                calculate();
-            }
+            const newVal = prompt("手动校准汇率:", rates.JPY);
+            if(newVal) { rates.JPY = parseFloat(newVal); document.getElementById('usdjpyRate').innerText = `手动 ${rates.JPY.toFixed(2)}`; calculate(); }
         }
 
         function copyLots() {
@@ -134,28 +123,24 @@
         }
 
         function setAccount(type) {
-            accountType = type;
-            localStorage.setItem('trade_acc', type);
-            updateAccUI();
-            calculate();
+            accountType = type; localStorage.setItem('trade_acc', type);
+            updateAccUI(); calculate();
         }
 
         function setSplit(count) {
-            splitCount = count;
-            localStorage.setItem('trade_split', count);
-            updateSplitUI();
-            calculate();
+            splitCount = count; localStorage.setItem('trade_split', count);
+            updateSplitUI(); calculate();
         }
 
         function updateAccUI() {
             const type = accountType;
-            document.getElementById('btn-standard').className = type === 'standard' ? "flex-1 py-2 text-xs rounded-xl transition-all split-btn-active font-bold" : "flex-1 py-2 text-xs rounded-xl transition-all text-slate-500";
-            document.getElementById('btn-cent').className = type === 'cent' ? "flex-1 py-2 text-xs rounded-xl transition-all split-btn-active font-bold" : "flex-1 py-2 text-xs rounded-xl transition-all text-slate-500";
+            document.getElementById('btn-standard').className = type === 'standard' ? "flex-1 py-3 text-xs rounded-xl transition-all split-btn-active font-bold" : "flex-1 py-3 text-xs rounded-xl transition-all text-slate-500 font-bold";
+            document.getElementById('btn-cent').className = type === 'cent' ? "flex-1 py-3 text-xs rounded-xl transition-all split-btn-active font-bold" : "flex-1 py-3 text-xs rounded-xl transition-all text-slate-500 font-bold";
         }
 
         function updateSplitUI() {
-            document.getElementById('split-2').className = splitCount === 2 ? "flex-1 py-3 rounded-2xl transition-all split-btn-active" : "flex-1 py-3 rounded-2xl border border-white/5 bg-slate-900/40 text-slate-500 transition-all";
-            document.getElementById('split-10').className = splitCount === 10 ? "flex-1 py-3 rounded-2xl transition-all split-btn-active" : "flex-1 py-3 rounded-2xl border border-white/5 bg-slate-900/40 text-slate-500 transition-all";
+            document.getElementById('split-2').className = splitCount === 2 ? "flex-1 py-4 rounded-2xl transition-all split-btn-active" : "flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 text-slate-500 transition-all";
+            document.getElementById('split-10').className = splitCount === 10 ? "flex-1 py-4 rounded-2xl transition-all split-btn-active" : "flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 text-slate-500 transition-all";
         }
 
         window.onload = () => {
@@ -163,21 +148,14 @@
             if(localStorage.getItem('trade_sym')) document.getElementById('symbol').value = localStorage.getItem('trade_sym');
             if(localStorage.getItem('trade_acc')) accountType = localStorage.getItem('trade_acc');
             if(localStorage.getItem('trade_split')) splitCount = parseInt(localStorage.getItem('trade_split'));
-            updateAccUI();
-            updateSplitUI();
-            updateRates();
+            updateAccUI(); updateSplitUI(); updateRates();
         }
 
         async function updateRates() {
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
                 const data = await res.json();
-                if(data && data.rates) {
-                    rates.JPY = data.rates.JPY;
-                    document.getElementById('usdjpyRate').innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
-                    document.getElementById('statusDot').classList.replace('bg-yellow-500', 'bg-green-500');
-                    document.getElementById('statusDot').classList.remove('animate-pulse');
-                }
+                if(data && data.rates) { rates.JPY = data.rates.JPY; document.getElementById('usdjpyRate').innerText = `USDJPY ${rates.JPY.toFixed(2)}`; }
             } catch (e) {}
             calculate();
         }
@@ -194,7 +172,6 @@
             const sym = document.getElementById('symbol').value;
             const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
             const stop = parseFloat(document.getElementById('stopPrice').value) || 0;
-
             if (!risk || !entry || !stop || entry === stop) return;
 
             const diff = Math.abs(entry - stop);
@@ -212,11 +189,16 @@
             document.getElementById('resultLots').innerText = totalLots.toFixed(2);
             document.getElementById('eachLot').innerText = (totalLots / splitCount).toFixed(2);
 
-            // 斐波那契目标
+            const dec = (s) => s.includes('JPY') || s.includes('XAU') || s.includes('USD') ? 2 : 2;
             const dir = entry > stop ? 1 : -1;
-            const dec = (s) => s.includes('JPY') || s.includes('XAU') || s.includes('USD') ? 2 : 2; 
+            
+            // 计算 TP 价格
             document.getElementById('tp20').innerText = (entry + (diff * 2 * dir)).toFixed(dec(sym));
             document.getElementById('tp4236').innerText = (entry + (diff * 4.236 * dir)).toFixed(dec(sym));
+            
+            // 计算盈利金额 (盈亏比 * 风险金)
+            document.getElementById('profit20').innerText = `+$${(risk * 2).toFixed(2)}`;
+            document.getElementById('profit4236').innerText = `+$${(risk * 4.236).toFixed(2)}`;
         }
     </script>
 </body>
