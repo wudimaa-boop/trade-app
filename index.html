@@ -2,83 +2,173 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RiskMaster 控仓助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>RiskMaster 控仓助手 Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; -webkit-tap-highlight-color: transparent; background: #0f172a; color: #e2e8f0; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tab-active { background: #eab308; color: #0f172a; font-weight: bold; }
+        body { font-family: 'Noto Sans SC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #eab308; cursor: pointer; border: 3px solid #1e293b; }
+        .tab-active { background: #eab308; color: #0f172a; font-weight: bold; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-md space-y-4">
-        <div class="flex bg-slate-900 p-1 rounded-xl border border-white/5">
-            <button id="btnStd" onclick="setAcc('std')" class="flex-1 py-2 text-xs rounded-lg tab-active">美金账户</button>
-            <button id="btnCent" onclick="setAcc('cent')" class="flex-1 py-2 text-xs rounded-lg text-slate-500">美分账户</button>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-[420px] space-y-4">
+        
+        <div class="flex justify-between items-end px-2">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter bg-gradient-to-br from-yellow-300 to-yellow-600 bg-clip-text text-transparent uppercase">RiskMaster</h1>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">稳定数据源 · 多品种支持</p>
+            </div>
+            <div id="rateStatus" class="flex items-center gap-1.5 text-[10px] bg-slate-800/50 px-2.5 py-1 rounded-full border border-white/5">
+                <span id="statusDot" class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                <span class="text-slate-400 font-mono" id="usdjpyRate">同步中...</span>
+            </div>
         </div>
 
-        <div class="glass rounded-3xl p-6 space-y-4 shadow-2xl">
+        <div class="flex bg-slate-900/80 p-1 rounded-2xl border border-white/5">
+            <button onclick="setAccount('standard')" id="btn-standard" class="flex-1 py-2 text-xs rounded-xl transition-all tab-active">美金账户</button>
+            <button onclick="setAccount('cent')" id="btn-cent" class="flex-1 py-2 text-xs rounded-xl transition-all text-slate-500">美分账户</button>
+        </div>
+
+        <div class="glass rounded-[2rem] p-6 shadow-2xl space-y-5">
             <div>
-                <label class="text-[11px] text-slate-400 block mb-1">单笔预设亏损 (USD)</label>
-                <input type="number" id="risk" value="100" class="w-full bg-slate-900/50 rounded-xl p-3 text-xl font-bold text-white outline-none border border-white/10">
+                <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase tracking-tight">单笔预设亏损金额 (USD)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-green-500 font-bold text-lg">$</span>
+                    <input type="number" id="riskAmount" value="100" class="w-full bg-slate-900/50 border border-white/5 rounded-2xl py-3.5 pl-10 pr-4 text-xl font-bold text-white outline-none focus:border-yellow-500/50 transition-all">
+                </div>
             </div>
+
             <div>
-                <label class="text-[11px] text-slate-400 block mb-1">交易品种</label>
-                <select id="sym" class="w-full bg-slate-900/50 rounded-xl p-3 text-white outline-none border border-white/10">
+                <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase tracking-tight">交易品种</label>
+                <select id="symbol" class="w-full bg-slate-900/50 border border-white/5 rounded-2xl p-3.5 text-white font-semibold outline-none appearance-none cursor-pointer">
                     <option value="XAUUSD">黄金 (XAUUSD)</option>
+                    <option value="XAGUSD">白银 (XAGUSD)</option>
                     <option value="EURJPY">欧日 (EURJPY)</option>
+                    <option value="GBPJPY">镑日 (GBPJPY)</option>
+                    <option value="EURUSD">欧美 (EURUSD)</option>
                     <option value="BTCUSD">比特币 (BTC)</option>
+                    <option value="ETHUSD">以太坊 (ETH)</option>
                 </select>
             </div>
+
             <div class="grid grid-cols-2 gap-4">
-                <input type="number" id="entry" placeholder="入场价" class="bg-slate-900/50 rounded-xl p-3 text-white outline-none border border-white/10">
-                <input type="number" id="stop" placeholder="止损价" class="bg-slate-900/50 rounded-xl p-3 text-white outline-none border border-white/10">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase tracking-tight">入场价</label>
+                    <input type="number" id="entryPrice" step="0.0001" placeholder="0.00" class="mono w-full bg-slate-900/50 border border-white/5 rounded-2xl p-3.5 text-white text-lg font-bold outline-none">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 ml-1 mb-1 block uppercase tracking-tight">止损价</label>
+                    <input type="number" id="stopPrice" step="0.0001" placeholder="0.00" class="mono w-full bg-slate-900/50 border border-white/5 rounded-2xl p-3.5 text-white text-lg font-bold outline-none">
+                </div>
             </div>
+
             <div>
-                <div class="flex justify-between text-[11px] text-slate-400 mb-1"><span>分仓单数</span><span id="sVal">1</span></div>
-                <input type="range" id="sCount" min="1" max="10" value="1" class="w-full h-1 bg-slate-700 rounded-lg appearance-none accent-yellow-500">
+                <div class="flex justify-between items-center mb-2.5 px-1">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase">分仓单数</label>
+                    <span id="splitValue" class="text-yellow-500 font-black mono">1</span>
+                </div>
+                <input type="range" id="splitCount" min="1" max="10" value="1" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
             </div>
         </div>
 
-        <div class="bg-yellow-500 rounded-3xl p-6 text-slate-900 shadow-xl">
+        <div id="resultBox" class="bg-yellow-500 rounded-[2.2rem] p-7 text-slate-900 shadow-2xl transition-all">
             <div class="flex justify-between items-end">
-                <div>
-                    <p class="text-[11px] font-bold opacity-70 uppercase tracking-wider">单笔订单建议</p>
+                <div class="flex-1">
+                    <p class="text-[11px] font-black uppercase opacity-60 mb-2 tracking-widest">单笔订单建议</p>
                     <div class="flex items-baseline gap-1">
-                        <span id="resEach" class="text-6xl font-black tracking-tighter">0.00</span>
-                        <span class="text-sm font-bold opacity-70">手</span>
+                        <span id="eachLot" class="text-7xl font-black tracking-tighter leading-none">0.00</span>
+                        <span class="text-sm font-bold opacity-60">手</span>
                     </div>
+                    <p id="detailText" class="text-[11px] font-bold opacity-50 mono mt-4 italic uppercase">Ready...</p>
                 </div>
-                <div class="text-right border-l border-slate-900/10 pl-4">
-                    <p class="text-[10px] opacity-60">总共手数</p>
-                    <p id="resTotal" class="text-xl font-black">0.00</p>
-                    <p id="accLab" class="text-[9px] opacity-40 font-bold mt-1">STANDARD</p>
+                <div class="bg-slate-900/10 p-4 rounded-2xl border border-slate-900/5 text-right min-w-[110px]">
+                    <p class="text-[10px] font-black opacity-50 uppercase mb-1">总手数</p>
+                    <p id="resultLots" class="text-2xl font-black leading-tight">0.00</p>
+                    <div class="h-[1px] bg-slate-900/10 my-1.5"></div>
+                    <p class="text-[9px] font-bold opacity-40 uppercase tracking-tighter" id="accountTypeLabel">标准账户</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let rate = 154.50; let acc = 'std';
-        async function getRate() { try { const r = await fetch('https://open.er-api.com/v6/latest/USD'); const d = await r.json(); if(d.rates.JPY) rate = d.rates.JPY; } catch(e){} calc(); }
-        function setAcc(t) { acc = t; document.getElementById('btnStd').className = t=='std'?'flex-1 py-2 text-xs rounded-lg tab-active':'flex-1 py-2 text-xs rounded-lg text-slate-500'; document.getElementById('btnCent').className = t=='cent'?'flex-1 py-2 text-xs rounded-lg tab-active':'flex-1 py-2 text-xs rounded-lg text-slate-500'; document.getElementById('accLab').innerText = t=='cent'?'CENT (x100)':'STANDARD'; calc(); }
-        const ids = ['risk','sym','entry','stop','sCount'];
-        ids.forEach(id => document.getElementById(id).oninput = () => { if(id=='sCount') document.getElementById('sVal').innerText = document.getElementById(id).value; calc(); });
-        function calc() {
-            const rk = parseFloat(document.getElementById('risk').value)||0; const sy = document.getElementById('sym').value;
-            const ey = parseFloat(document.getElementById('entry').value)||0; const sp = parseFloat(document.getElementById('stop').value)||0;
-            const sc = parseInt(document.getElementById('sCount').value);
-            if(!rk || !ey || !sp || ey==sp) return;
-            const diff = Math.abs(ey - sp); let lots = 0;
-            if(sy=="XAUUSD") lots = rk / (diff * 100);
-            else if(sy=="EURJPY") lots = rk / ((diff * 100) * (1000 / rate));
-            else lots = rk / diff;
-            if(acc=='cent') lots *= 100;
-            document.getElementById('resTotal').innerText = lots.toFixed(2);
-            document.getElementById('resEach').innerText = (lots/sc).toFixed(2);
+        let rates = { JPY: 154.50, GBP: 0.79, EUR: 0.94 };
+        let accountType = 'standard';
+
+        async function updateRates() {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                if(data && data.rates) {
+                    rates = data.rates;
+                    document.getElementById('usdjpyRate').innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
+                    document.getElementById('statusDot').classList.replace('bg-yellow-500', 'bg-green-500');
+                    document.getElementById('statusDot').classList.remove('animate-pulse');
+                }
+            } catch (e) {
+                document.getElementById('usdjpyRate').innerText = "稳定模式";
+            }
+            calculate();
         }
-        getRate();
+
+        function setAccount(type) {
+            accountType = type;
+            document.getElementById('btn-standard').className = type === 'standard' ? "flex-1 py-2 text-xs rounded-xl transition-all tab-active" : "flex-1 py-2 text-xs rounded-xl transition-all text-slate-500";
+            document.getElementById('btn-cent').className = type === 'cent' ? "flex-1 py-2 text-xs rounded-xl transition-all tab-active" : "flex-1 py-2 text-xs rounded-xl transition-all text-slate-500";
+            document.getElementById('accountTypeLabel').innerText = type === 'cent' ? "美分账户 (x100)" : "标准账户";
+            calculate();
+        }
+
+        const ids = ['riskAmount', 'symbol', 'entryPrice', 'stopPrice', 'splitCount'];
+        ids.forEach(id => document.getElementById(id).oninput = () => {
+            if(id === 'splitCount') document.getElementById('splitValue').innerText = document.getElementById(id).value;
+            calculate();
+        });
+
+        function calculate() {
+            const risk = parseFloat(document.getElementById('riskAmount').value) || 0;
+            const sym = document.getElementById('symbol').value;
+            const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
+            const stop = parseFloat(document.getElementById('stopPrice').value) || 0;
+            const splits = parseInt(document.getElementById('splitCount').value);
+
+            if (!risk || !entry || !stop || entry === stop) return;
+
+            const diff = Math.abs(entry - stop);
+            let totalLots = 0;
+            let note = "";
+
+            if (sym === "XAUUSD") {
+                totalLots = risk / (diff * 100);
+                note = `止损距离: ${diff.toFixed(2)} USD`;
+            } else if (sym === "XAGUSD") {
+                totalLots = risk / (diff * 5000);
+                note = `止损距离: ${diff.toFixed(3)} USD`;
+            } else if (sym.endsWith("JPY")) {
+                const pipValue = 1000 / rates.JPY;
+                totalLots = risk / ((diff * 100) * pipValue);
+                note = `止损点数: ${(diff * 100).toFixed(1)} Pips`;
+            } else if (sym === "EURUSD") {
+                totalLots = risk / (diff * 100000);
+                note = `止损点数: ${(diff * 10000).toFixed(1)} Pips`;
+            } else { // BTC, ETH
+                totalLots = risk / diff;
+                note = `止损空间: ${diff.toFixed(2)} Pts`;
+            }
+
+            if (accountType === 'cent') totalLots *= 100;
+            
+            document.getElementById('resultLots').innerText = totalLots.toFixed(2);
+            document.getElementById('eachLot').innerText = (totalLots / splits).toFixed(2);
+            document.getElementById('detailText').innerText = note;
+        }
+
+        updateRates();
     </script>
 </body>
 </html>
