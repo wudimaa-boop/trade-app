@@ -15,6 +15,9 @@
         input, select { background: rgba(15, 23, 42, 0.6) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
         .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4); }
         select option { background: #1e293b; color: #ffffff; }
+        /* 绿色呼吸灯动画 */
+        .dot-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body class="dark flex items-center justify-center min-h-screen p-4">
@@ -23,10 +26,11 @@
         <div class="flex justify-between items-center px-2">
             <div>
                 <h1 class="text-xl font-black text-yellow-500 uppercase leading-none">RiskMaster Pro</h1>
-                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">汇率实时同步 · 斐波策略版</p>
+                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">实时汇率 · 斐波策略版</p>
             </div>
-            <div onclick="manualRate()" id="usdjpyRate" class="text-[10px] bg-slate-800 px-3 py-1 rounded-full border border-white/10 font-mono text-yellow-500 cursor-pointer">
-                USDJPY --.--
+            <div onclick="manualRate()" class="flex items-center gap-2 text-[10px] bg-slate-800 px-3 py-1.5 rounded-full border border-white/10 font-mono text-slate-300 cursor-pointer">
+                <span id="rateDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span id="usdjpyRate">USDJPY --.--</span>
             </div>
         </div>
 
@@ -83,15 +87,19 @@
         }
 
         async function updateRates() {
+            const dot = document.getElementById('rateDot');
+            const txt = document.getElementById('usdjpyRate');
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
                 const data = await res.json();
                 if(data?.rates?.JPY) {
                     rates.JPY = data.rates.JPY;
-                    document.getElementById('usdjpyRate').innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
+                    txt.innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
+                    dot.className = "w-2 h-2 rounded-full bg-green-500 dot-pulse"; // 同步成功变绿
                 }
             } catch(e) {
-                document.getElementById('usdjpyRate').innerText = `汇率 ${rates.JPY.toFixed(2)}`;
+                txt.innerText = `手动 ${rates.JPY.toFixed(2)}`;
+                dot.className = "w-2 h-2 rounded-full bg-yellow-500"; // 失败变黄
             }
             calculate();
         }
@@ -101,6 +109,7 @@
             if(newVal && !isNaN(newVal)) {
                 rates.JPY = parseFloat(newVal);
                 document.getElementById('usdjpyRate').innerText = `手动 ${rates.JPY.toFixed(2)}`;
+                document.getElementById('rateDot').className = "w-2 h-2 rounded-full bg-blue-500"; // 手动变蓝
                 calculate();
             }
         }
