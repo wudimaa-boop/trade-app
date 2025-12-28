@@ -98,4 +98,114 @@
             const dot = document.getElementById('rateDot');
             const txt = document.getElementById('usdjpyRate');
             try {
-                const res = await fetch('
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                if(data?.rates?.JPY) {
+                    rates.JPY = data.rates.JPY;
+                    txt.innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
+                    dot.className = "w-2 h-2 rounded-full bg-green-500 dot-pulse";
+                }
+            } catch(e) {
+                txt.innerText = `手动 ${rates.JPY.toFixed(2)}`;
+                dot.className = "w-2 h-2 rounded-full bg-yellow-500";
+            }
+            calculate();
+        }
+
+        function manualRate() {
+            const newVal = prompt("输入 USDJPY 汇率:", rates.JPY);
+            if(newVal && !isNaN(newVal)) {
+                rates.JPY = parseFloat(newVal);
+                document.getElementById('usdjpyRate').innerText = `手动 ${rates.JPY.toFixed(2)}`;
+                document.getElementById('rateDot').className = "w-2 h-2 rounded-full bg-blue-500";
+                calculate();
+            }
+        }
+
+        function calculate() {
+            const risk = parseFloat(document.getElementById('riskAmount').value) || 0;
+            const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
+            const stop = parseFloat(document.getElementById('stopPrice').value) || 0;
+            const sym = document.getElementById('symbol').value;
+            if(!risk || !entry || !stop || entry === stop) return;
+
+            const diff = Math.abs(entry - stop);
+            const dir = entry > stop ? 1 : -1;
+            let totalLots = 0;
+
+            // 核心计算
+            if (sym === "XAUUSD") totalLots = risk / (diff * 100);
+            else if (sym === "XAGUSD") totalLots = risk / (diff * 5000);
+            else if (sym === "USOIL") totalLots = risk / (diff * 1000);
+            else if (sym === "US500") totalLots = risk / (diff * 50);
+            else if (sym === "EURJPY") {
+                const pipValueUSD = 1000 / rates.JPY; 
+                totalLots = risk / (diff * 100 * pipValueUSD);
+            } else totalLots = risk / diff;
+
+            // 美分账户逻辑
+            if (accountType === 'cent') totalLots *= 100;
+
+            document.getElementById('eachLot').innerText = (totalLots / splitCount).toFixed(2);
+            
+            let tpHtml = "";
+            const dec = entry.toString().split('.')[1]?.length || 3;
+
+            if (splitCount === 2) {
+                const configs = [
+                    { label: "TP1 (2.0) 保本位", count: 1, ratio: 1.0 },
+                    { label: "TP2 (4.236) 扩张位", count: 1, ratio: 3.236 }
+                ];
+                configs.forEach(cfg => {
+                    const price = entry + (diff * cfg.ratio * dir);
+                    const profit = (risk / splitCount) * cfg.ratio;
+                    tpHtml += renderItem(cfg.label, price.toFixed(dec), profit, cfg.count);
+                });
+            } else {
+                const configs = [
+                    { label: "TP1 (2.0) 对冲位", count: 5, ratio: 1.0 },
+                    { label: "TP2 (2.382)", count: 1, ratio: 1.382 },
+                    { label: "TP3 (3.382)", count: 1, ratio: 2.382 },
+                    { label: "TP4 (3.618)", count: 1, ratio: 2.618 },
+                    { label: "TP5 (4.236)", count: 1, ratio: 3.236 },
+                    { label: "TP6 (4.880)", count: 1, ratio: 3.880 }
+                ];
+                configs.forEach(cfg => {
+                    const price = entry + (diff * cfg.ratio * dir);
+                    const profit = (risk / splitCount) * cfg.ratio * cfg.count;
+                    tpHtml += renderItem(cfg.label, price.toFixed(dec), profit, cfg.count);
+                });
+            }
+            document.getElementById('tpList').innerHTML = tpHtml;
+        }
+
+        function renderItem(label, price, profit, count) {
+            return `<div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-2xl">
+                <div class="text-left"><p class="text-[9px] font-black opacity-40 uppercase">${label} · ${count}单</p><p class="text-lg font-black mono leading-tight">${price}</p></div>
+                <div class="text-right"><p class="text-[9px] font-black opacity-40 uppercase">预估盈利</p><p class="text-sm font-black text-green-700 leading-tight">+$${profit.toFixed(2)}</p></div>
+            </div>`;
+        }
+
+        function copyLots() {
+            const val = document.getElementById('eachLot').innerText;
+            navigator.clipboard.writeText(val);
+            const box = document.querySelector('.bg-yellow-500');
+            box.style.background = '#4ade80';
+            setTimeout(() => box.style.background = '', 300);
+        }
+
+        const inputs = ['riskAmount', 'symbol', 'entryPrice', 'stopPrice'];
+        inputs.forEach(id => document.getElementById(id).oninput = () => {
+            localStorage.setItem('trade_' + id, document.getElementById(id).value);
+            calculate();
+        });
+
+        window.onload = () => {
+            inputs.forEach(id => { if(localStorage.getItem('trade_'+id)) document.getElementById(id).value = localStorage.getItem('trade_'+id); });
+            if(localStorage.getItem('trade_split')) splitCount = parseInt(localStorage.getItem('trade_split'));
+            if(localStorage.getItem('trade_acc')) accountType = localStorage.getItem('trade_acc');
+            updateUI(); updateRates();
+        };
+    </script>
+</body>
+</html>
