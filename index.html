@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RiskMaster 策略版</title>
+    <title>RiskMaster Pro 策略版</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -13,6 +14,7 @@
         .card-bg { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); }
         input, select { background: rgba(15, 23, 42, 0.6) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
         .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4); }
+        select option { background: #1e293b; color: #ffffff; }
     </style>
 </head>
 <body class="dark flex items-center justify-center min-h-screen p-4">
@@ -20,73 +22,95 @@
     <div class="w-full max-w-[440px] space-y-4">
         <div class="flex justify-between items-center px-2">
             <div>
-                <h1 class="text-xl font-black text-yellow-500 uppercase">RiskMaster Pro</h1>
-                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase">斐波那契分仓策略版</p>
+                <h1 class="text-xl font-black text-yellow-500 uppercase leading-none">RiskMaster Pro</h1>
+                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">汇率实时同步 · 斐波策略版</p>
             </div>
-            <div id="usdjpyRate" class="text-[10px] bg-slate-800 px-3 py-1 rounded-full border border-white/10 font-mono text-slate-300">USDJPY同步中...</div>
+            <div onclick="manualRate()" id="usdjpyRate" class="text-[10px] bg-slate-800 px-3 py-1 rounded-full border border-white/10 font-mono text-yellow-500 cursor-pointer">
+                USDJPY --.--
+            </div>
         </div>
 
         <div class="card-bg rounded-[2.5rem] p-6 space-y-5">
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">总风险金 (USD)</label>
-                    <input type="number" id="riskAmount" value="400" class="w-full rounded-2xl py-3 px-5 text-xl font-bold outline-none">
+                    <input type="number" id="riskAmount" class="w-full rounded-2xl py-3 px-5 text-xl font-bold outline-none">
                 </div>
                 <div class="col-span-2">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">交易品种</label>
-                    <select id="symbol" class="w-full rounded-2xl p-3 text-base font-bold outline-none appearance-none">
+                    <select id="symbol" class="w-full rounded-2xl p-3 text-sm font-bold outline-none appearance-none cursor-pointer">
                         <option value="XAUUSD">黄金 (XAUUSD)</option>
+                        <option value="XAGUSD">白银 (XAGUSD)</option>
+                        <option value="USOIL">美原油 (WTI)</option>
                         <option value="US500">标普500 (US500)</option>
-                        <option value="EURJPY">欧日 (EURJPY)</option>
-                        <option value="USOIL">原油 (WTI)</option>
+                        <option value="EURJPY">欧元日元 (EURJPY)</option>
+                        <option value="BTCUSD">比特币 (BTC)</option>
+                        <option value="ETHUSD">以太坊 (ETH)</option>
                     </select>
                 </div>
-                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block">入场价</label><input type="number" id="entryPrice" step="0.001" class="mono w-full rounded-xl p-3 font-bold outline-none"></div>
-                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block">止损价</label><input type="number" id="stopPrice" step="0.001" class="mono w-full rounded-xl p-3 font-bold outline-none"></div>
+                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block">入场价</label><input type="number" id="entryPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base"></div>
+                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block">止损价</label><input type="number" id="stopPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base"></div>
             </div>
 
             <div class="flex gap-3">
-                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-3 rounded-xl font-black transition-all">2单模式</button>
-                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-3 rounded-xl font-black transition-all">10单模式</button>
+                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-3.5 rounded-xl font-black transition-all">2单模式</button>
+                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-3.5 rounded-xl font-black transition-all">10单模式</button>
             </div>
         </div>
 
         <div class="bg-yellow-500 rounded-[2.5rem] p-6 text-slate-900 shadow-xl">
-            <div class="flex justify-between items-end mb-4">
-                <div>
-                    <p class="text-[10px] font-black uppercase opacity-70">建议单笔手数</p>
-                    <div class="flex items-baseline gap-1"><span id="eachLot" class="text-5xl font-black tracking-tighter">0.00</span><span class="text-xs font-bold uppercase">Lots</span></div>
-                </div>
-                <div class="text-right">
-                    <p class="text-[9px] font-black opacity-60 uppercase">平均盈亏比</p>
-                    <p id="avgRR" class="text-lg font-black tracking-tighter">1:0.00</p>
+            <div class="mb-4">
+                <p class="text-[10px] font-black uppercase opacity-70 mb-1">建议单笔手数 (点击复制)</p>
+                <div class="flex items-baseline gap-2 cursor-pointer" onclick="copyLots()">
+                    <span id="eachLot" class="text-6xl font-black tracking-tighter">0.00</span>
+                    <span class="text-sm font-bold uppercase opacity-80">Lots</span>
                 </div>
             </div>
             
-            <div id="tpList" class="space-y-2 border-t border-slate-900/10 pt-4">
-                </div>
+            <div id="tpList" class="space-y-2 border-t border-slate-900/10 pt-4"></div>
         </div>
     </div>
 
     <script>
         let splitCount = 2;
-        let rates = { JPY: 154.0 };
+        let rates = { JPY: 156.40 };
 
-        function setSplit(n) { splitCount = n; updateUI(); calculate(); }
+        function setSplit(n) { splitCount = n; localStorage.setItem('trade_split', n); updateUI(); calculate(); }
 
         function updateUI() {
-            document.getElementById('split-2').className = splitCount === 2 ? 'flex-1 py-3 rounded-xl font-black split-btn-active' : 'flex-1 py-3 rounded-xl font-black bg-slate-900/40 text-slate-500';
-            document.getElementById('split-10').className = splitCount === 10 ? 'flex-1 py-3 rounded-xl font-black split-btn-active' : 'flex-1 py-3 rounded-xl font-black bg-slate-900/40 text-slate-500';
+            document.getElementById('split-2').className = splitCount === 2 ? 'flex-1 py-3.5 rounded-xl font-black split-btn-active' : 'flex-1 py-3.5 rounded-xl font-black bg-slate-900/40 text-slate-500';
+            document.getElementById('split-10').className = splitCount === 10 ? 'flex-1 py-3.5 rounded-xl font-black split-btn-active' : 'flex-1 py-3.5 rounded-xl font-black bg-slate-900/40 text-slate-500';
         }
 
         async function updateRates() {
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
                 const data = await res.json();
-                rates.JPY = data.rates.JPY;
-                document.getElementById('usdjpyRate').innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
-            } catch(e) {}
+                if(data?.rates?.JPY) {
+                    rates.JPY = data.rates.JPY;
+                    document.getElementById('usdjpyRate').innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
+                }
+            } catch(e) {
+                document.getElementById('usdjpyRate').innerText = `汇率 ${rates.JPY.toFixed(2)}`;
+            }
             calculate();
+        }
+
+        function manualRate() {
+            const newVal = prompt("请输入最新的 USDJPY 汇率:", rates.JPY);
+            if(newVal && !isNaN(newVal)) {
+                rates.JPY = parseFloat(newVal);
+                document.getElementById('usdjpyRate').innerText = `手动 ${rates.JPY.toFixed(2)}`;
+                calculate();
+            }
+        }
+
+        function copyLots() {
+            const val = document.getElementById('eachLot').innerText;
+            navigator.clipboard.writeText(val);
+            const box = document.querySelector('.bg-yellow-500');
+            box.style.background = '#4ade80';
+            setTimeout(() => box.style.background = '', 300);
         }
 
         function calculate() {
@@ -100,42 +124,43 @@
             const dir = entry > stop ? 1 : -1;
             let totalLots = 0;
 
-            // 手数计算
             if (sym === "XAUUSD") totalLots = risk / (diff * 100);
+            else if (sym === "XAGUSD") totalLots = risk / (diff * 5000);
+            else if (sym === "USOIL") totalLots = risk / (diff * 1000);
             else if (sym === "US500") totalLots = risk / (diff * 50);
-            else if (sym === "EURJPY") totalLots = risk / ((diff * 100) * (1000 / rates.JPY));
-            else totalLots = risk / diff;
+            else if (sym === "EURJPY") {
+                const pipValueUSD = 1000 / rates.JPY; 
+                totalLots = risk / (diff * 100 * pipValueUSD);
+            } else totalLots = risk / diff;
 
             document.getElementById('eachLot').innerText = (totalLots / splitCount).toFixed(2);
             
             let tpHtml = "";
-            let totalProfit = 0;
+            const dec = entry.toString().split('.')[1]?.length || 3;
 
             if (splitCount === 2) {
                 const configs = [
-                    { label: "TP1 (2.0) 保本位", count: 1, ratio: 1.0 },
-                    { label: "TP2 (4.236) 扩张位", count: 1, ratio: 3.236 }
+                    { label: "TP1 (2.0) 保本对冲位", count: 1, ratio: 1.0 },
+                    { label: "TP2 (4.236) 趋势目标位", count: 1, ratio: 3.236 }
                 ];
-                document.getElementById('avgRR').innerText = "1:2.118";
                 configs.forEach(cfg => {
                     const price = entry + (diff * cfg.ratio * dir);
                     const profit = (risk / splitCount) * cfg.ratio;
-                    tpHtml += renderItem(cfg.label, price, profit, cfg.count);
+                    tpHtml += renderItem(cfg.label, price.toFixed(dec), profit, cfg.count);
                 });
             } else {
                 const configs = [
-                    { label: "TP1 (2.0) 对冲位", count: 5, ratio: 1.0 },
+                    { label: "TP1 (2.0) 对冲保本", count: 5, ratio: 1.0 },
                     { label: "TP2 (2.382)", count: 1, ratio: 1.382 },
                     { label: "TP3 (3.382)", count: 1, ratio: 2.382 },
                     { label: "TP4 (3.618)", count: 1, ratio: 2.618 },
                     { label: "TP5 (4.236)", count: 1, ratio: 3.236 },
                     { label: "TP6 (4.880)", count: 1, ratio: 3.880 }
                 ];
-                document.getElementById('avgRR').innerText = "1:1.850";
                 configs.forEach(cfg => {
                     const price = entry + (diff * cfg.ratio * dir);
                     const profit = (risk / splitCount) * cfg.ratio * cfg.count;
-                    tpHtml += renderItem(cfg.label, price, profit, cfg.count);
+                    tpHtml += renderItem(cfg.label, price.toFixed(dec), profit, cfg.count);
                 });
             }
             document.getElementById('tpList').innerHTML = tpHtml;
@@ -143,21 +168,35 @@
 
         function renderItem(label, price, profit, count) {
             return `
-                <div class="flex justify-between items-center bg-slate-900/10 p-3 rounded-xl">
+                <div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-2xl">
                     <div class="text-left">
-                        <p class="text-[9px] font-black opacity-50">${label} [${count}单]</p>
-                        <p class="text-lg font-black mono">${price.toFixed(3)}</p>
+                        <p class="text-[9px] font-black opacity-40 uppercase">${label} · ${count}单</p>
+                        <p class="text-lg font-black mono leading-tight">${price}</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-[9px] font-black opacity-50">预计盈利</p>
-                        <p class="text-sm font-black text-green-800">+$${profit.toFixed(2)}</p>
+                        <p class="text-[9px] font-black opacity-40 uppercase">预估盈利</p>
+                        <p class="text-sm font-black text-green-700 leading-tight">+$${profit.toFixed(2)}</p>
                     </div>
                 </div>
             `;
         }
 
-        document.querySelectorAll('input, select').forEach(el => el.oninput = calculate);
-        window.onload = () => { updateUI(); updateRates(); };
+        const inputs = ['riskAmount', 'symbol', 'entryPrice', 'stopPrice'];
+        inputs.forEach(id => {
+            document.getElementById(id).oninput = () => {
+                localStorage.setItem('trade_' + id, document.getElementById(id).value);
+                calculate();
+            };
+        });
+
+        window.onload = () => {
+            inputs.forEach(id => {
+                if(localStorage.getItem('trade_' + id)) document.getElementById(id).value = localStorage.getItem('trade_' + id);
+            });
+            if(localStorage.getItem('trade_split')) splitCount = parseInt(localStorage.getItem('trade_split'));
+            updateUI();
+            updateRates();
+        };
     </script>
 </body>
 </html>
