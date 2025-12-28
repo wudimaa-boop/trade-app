@@ -47,7 +47,7 @@
             <div class="grid grid-cols-2 gap-5">
                 <div class="col-span-2">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-2 block uppercase tracking-wider">单笔风险金额 (USD)</label>
-                    <input type="number" id="riskAmount" class="w-full rounded-2xl py-4 px-5 text-2xl font-bold outline-none focus:ring-2 focus:ring-yellow-500/50">
+                    <input type="number" id="riskAmount" class="w-full rounded-2xl py-4 px-5 text-2xl font-bold outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all">
                 </div>
                 <div class="col-span-2">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-2 block uppercase tracking-wider">交易品种</label>
@@ -66,8 +66,8 @@
             </div>
 
             <div class="flex gap-4">
-                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 font-black text-lg">2单</button>
-                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 font-black text-lg">10单</button>
+                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 font-black text-lg transition-all">2单</button>
+                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 font-black text-lg transition-all">10单</button>
             </div>
         </div>
 
@@ -83,16 +83,16 @@
                 </div>
             </div>
             
-            <div class="mt-8 pt-5 border-t border-slate-900/15 grid grid-cols-2 gap-5 text-center">
+            <div id="fiboBox" class="mt-8 pt-5 border-t border-slate-900/15 grid grid-cols-2 gap-5 text-center transition-all duration-300">
                 <div class="bg-slate-900/10 p-3 rounded-2xl">
-                    <p class="text-[9px] font-black opacity-60 uppercase mb-1">TP 2.0 (1:2)</p>
+                    <p class="text-[9px] font-black opacity-60 uppercase mb-1">TP 2.0 (单笔盈利)</p>
                     <p id="tp20" class="text-xl font-black mono tracking-tight text-slate-900">-</p>
-                    <p id="profit20" class="text-[10px] font-black text-green-700 mt-1">+$0.00</p>
+                    <p id="profit20" class="text-[11px] font-black text-green-700 mt-1">+$0.00</p>
                 </div>
                 <div class="bg-slate-900/10 p-3 rounded-2xl">
-                    <p class="text-[9px] font-black opacity-60 uppercase mb-1">TP 4.236</p>
+                    <p class="text-[9px] font-black opacity-60 uppercase mb-1">TP 4.236 (单笔盈利)</p>
                     <p id="tp4236" class="text-xl font-black mono tracking-tight text-slate-900">-</p>
-                    <p id="profit4236" class="text-[10px] font-black text-green-700 mt-1">+$0.00</p>
+                    <p id="profit4236" class="text-[11px] font-black text-green-700 mt-1">+$0.00</p>
                 </div>
             </div>
         </div>
@@ -110,7 +110,7 @@
         }
 
         function manualRate() {
-            const newVal = prompt("手动校准汇率:", rates.JPY);
+            const newVal = prompt("手动输入汇率:", rates.JPY);
             if(newVal) { rates.JPY = parseFloat(newVal); document.getElementById('usdjpyRate').innerText = `手动 ${rates.JPY.toFixed(2)}`; calculate(); }
         }
 
@@ -141,6 +141,8 @@
         function updateSplitUI() {
             document.getElementById('split-2').className = splitCount === 2 ? "flex-1 py-4 rounded-2xl transition-all split-btn-active" : "flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 text-slate-500 transition-all";
             document.getElementById('split-10').className = splitCount === 10 ? "flex-1 py-4 rounded-2xl transition-all split-btn-active" : "flex-1 py-4 rounded-2xl border border-white/5 bg-slate-900/40 text-slate-500 transition-all";
+            // 隐藏或显示斐波那契区域
+            document.getElementById('fiboBox').style.display = splitCount === 2 ? 'grid' : 'none';
         }
 
         window.onload = () => {
@@ -189,16 +191,15 @@
             document.getElementById('resultLots').innerText = totalLots.toFixed(2);
             document.getElementById('eachLot').innerText = (totalLots / splitCount).toFixed(2);
 
-            const dec = (s) => s.includes('JPY') || s.includes('XAU') || s.includes('USD') ? 2 : 2;
-            const dir = entry > stop ? 1 : -1;
-            
-            // 计算 TP 价格
-            document.getElementById('tp20').innerText = (entry + (diff * 2 * dir)).toFixed(dec(sym));
-            document.getElementById('tp4236').innerText = (entry + (diff * 4.236 * dir)).toFixed(dec(sym));
-            
-            // 计算盈利金额 (盈亏比 * 风险金)
-            document.getElementById('profit20').innerText = `+$${(risk * 2).toFixed(2)}`;
-            document.getElementById('profit4236').innerText = `+$${(risk * 4.236).toFixed(2)}`;
+            if (splitCount === 2) {
+                const dec = (s) => s.includes('JPY') || s.includes('XAU') || s.includes('USD') ? 2 : 2;
+                const dir = entry > stop ? 1 : -1;
+                document.getElementById('tp20').innerText = (entry + (diff * 2 * dir)).toFixed(dec(sym));
+                document.getElementById('tp4236').innerText = (entry + (diff * 4.236 * dir)).toFixed(dec(sym));
+                const profitPerOrder = (rr) => (risk * rr) / splitCount;
+                document.getElementById('profit20').innerText = `+$${profitPerOrder(2).toFixed(2)}`;
+                document.getElementById('profit4236').innerText = `+$${profitPerOrder(4.236).toFixed(2)}`;
+            }
         }
     </script>
 </body>
