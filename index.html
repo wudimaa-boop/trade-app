@@ -15,6 +15,8 @@
         .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4); }
         .dot-pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+        .copy-hint { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
+        .copy-hint:hover { opacity: 1; }
     </style>
 </head>
 <body class="dark flex items-center justify-center min-h-screen p-4">
@@ -23,7 +25,7 @@
         <div class="flex justify-between items-center px-2">
             <div>
                 <h1 class="text-xl font-black text-yellow-500 uppercase leading-none">RiskMaster Pro</h1>
-                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">逐笔核对 · 10单对冲策略</p>
+                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">逐笔核对 · 策略对冲版</p>
             </div>
             <div onclick="manualRate()" class="flex items-center gap-2 text-[10px] bg-slate-800 px-3 py-1.5 rounded-full border border-white/10 font-mono text-slate-300 cursor-pointer">
                 <span id="rateDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
@@ -54,8 +56,17 @@
                         <option value="ETHUSD">以太坊 (ETH)</option>
                     </select>
                 </div>
-                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">入场价</label><input type="number" id="entryPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base"></div>
-                <div><label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">止损价</label><input type="number" id="stopPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base"></div>
+                
+                <div class="relative">
+                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">止损价</label>
+                    <input type="number" id="stopPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
+                    <span class="copy-hint" onclick="copyValue('stopPrice')">📋</span>
+                </div>
+                <div class="relative">
+                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">入场价</label>
+                    <input type="number" id="entryPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
+                    <span class="copy-hint" onclick="copyValue('entryPrice')">📋</span>
+                </div>
             </div>
 
             <div class="flex gap-3">
@@ -68,7 +79,7 @@
             <div class="flex justify-between items-start mb-4">
                 <div class="flex-1">
                     <p class="text-[10px] font-black uppercase opacity-70 mb-1">建议单笔 (点击复制)</p>
-                    <div class="flex items-baseline gap-2 cursor-pointer" onclick="copyLots()">
+                    <div class="flex items-baseline gap-2 cursor-pointer" onclick="copyValue('eachLot', true)">
                         <span id="eachLot" class="text-6xl font-black tracking-tighter">0.00</span>
                         <span class="text-sm font-bold uppercase opacity-80">Lots</span>
                     </div>
@@ -79,7 +90,7 @@
                     <p class="text-[8px] font-bold opacity-40 mt-1 uppercase" id="lotInfo">...</p>
                 </div>
             </div>
-            <div id="tpList" class="space-y-2 border-t border-slate-900/10 pt-4 max-h-[38vh] overflow-y-auto pr-1"></div>
+            <div id="tpList" class="space-y-2 border-t border-slate-900/10 pt-4 max-h-[35vh] overflow-y-auto pr-1"></div>
         </div>
     </div>
 
@@ -127,6 +138,18 @@
             }
         }
 
+        function copyValue(id, isText = false) {
+            const val = isText ? document.getElementById(id).innerText : document.getElementById(id).value;
+            if(!val) return;
+            navigator.clipboard.writeText(val);
+            
+            // 触觉/视觉反馈
+            const el = isText ? document.querySelector('.bg-yellow-500') : document.getElementById(id);
+            const original = el.style.background;
+            el.style.background = isText ? '#4ade80' : '#4ade8055';
+            setTimeout(() => el.style.background = original, 200);
+        }
+
         function calculate() {
             const risk = parseFloat(document.getElementById('riskAmount').value) || 0;
             const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
@@ -148,8 +171,6 @@
             } else totalLots = risk / diff;
 
             if (accountType === 'cent') totalLots *= 100;
-            
-            // 手数显示
             document.getElementById('totalLotsDisplay').innerText = totalLots.toFixed(2);
             document.getElementById('eachLot').innerText = (totalLots / splitCount).toFixed(2);
             
@@ -173,18 +194,11 @@
         }
 
         function renderItem(label, price, profit, dec) {
-            return `<div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-2xl mb-1.5 border border-slate-900/5">
-                <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">${label}</p><p class="text-base font-black mono leading-none">${price.toFixed(dec)}</p></div>
+            const p = price.toFixed(dec);
+            return `<div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-2xl mb-1.5 border border-slate-900/5 cursor-pointer hover:bg-slate-900/10 transition-colors" onclick="navigator.clipboard.writeText('${p}')">
+                <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">${label}</p><p class="text-base font-black mono leading-none">${p} <span class="text-[10px] opacity-20 ml-1">📋</span></p></div>
                 <div class="text-right"><p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">预计盈利</p><p class="text-xs font-black text-green-700 leading-none">+$${profit.toFixed(2)}</p></div>
             </div>`;
-        }
-
-        function copyLots() {
-            const val = document.getElementById('eachLot').innerText;
-            navigator.clipboard.writeText(val);
-            const box = document.querySelector('.bg-yellow-500');
-            box.style.background = '#4ade80';
-            setTimeout(() => box.style.background = '', 300);
         }
 
         const inputs = ['riskAmount', 'symbol', 'entryPrice', 'stopPrice'];
