@@ -67,6 +67,13 @@
                     <input type="number" id="entryPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
                     <span class="copy-hint" onclick="copyValue('entryPrice')">📋</span>
                 </div>
+
+                <div class="col-span-2 flex justify-center mt-[-8px]">
+                    <div class="bg-slate-900/60 px-4 py-1.5 rounded-full border border-white/5 flex items-center gap-2 shadow-inner">
+                        <span class="text-[9px] font-black opacity-40 uppercase tracking-widest">止损点差空间</span>
+                        <span id="gapDisplay" class="text-xs font-black text-yellow-500 mono">0.000</span>
+                    </div>
+                </div>
             </div>
 
             <div class="flex gap-3">
@@ -142,8 +149,6 @@
             const val = isText ? document.getElementById(id).innerText : document.getElementById(id).value;
             if(!val) return;
             navigator.clipboard.writeText(val);
-            
-            // 触觉/视觉反馈
             const el = isText ? document.querySelector('.bg-yellow-500') : document.getElementById(id);
             const original = el.style.background;
             el.style.background = isText ? '#4ade80' : '#4ade8055';
@@ -155,9 +160,14 @@
             const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
             const stop = parseFloat(document.getElementById('stopPrice').value) || 0;
             const sym = document.getElementById('symbol').value;
+            
+            // 实时显示点差
+            const gap = Math.abs(entry - stop);
+            document.getElementById('gapDisplay').innerText = gap.toFixed(3);
+
             if(!risk || !entry || !stop || entry === stop) return;
 
-            const diff = Math.abs(entry - stop);
+            const diff = gap;
             const dir = entry > stop ? 1 : -1;
             let totalLots = 0;
 
