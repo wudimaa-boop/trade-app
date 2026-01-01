@@ -24,7 +24,7 @@
         <div class="flex justify-between items-center px-2">
             <div>
                 <h1 class="text-xl font-black text-yellow-500 uppercase leading-none">RiskMaster Pro</h1>
-                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">真实盈亏模拟 · 10单对冲版</p>
+                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">1乘数精确版 · 真实盈亏模拟</p>
             </div>
             <div onclick="manualRate()" class="flex items-center gap-2 text-[10px] bg-slate-800 px-3 py-1.5 rounded-full border border-white/10 font-mono text-slate-300 cursor-pointer">
                 <span id="rateDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
@@ -41,30 +41,27 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">定损风险金 (USD)</label>
-                    <input type="number" id="riskAmount" class="w-full rounded-2xl py-3 px-5 text-xl font-bold outline-none">
+                    <input type="number" id="riskAmount" class="w-full rounded-2xl py-3 px-5 text-xl font-bold outline-none" placeholder="0.00">
                 </div>
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">交易品种</label>
-                    <select id="symbol" class="w-full rounded-2xl p-3 text-sm font-bold outline-none appearance-none">
+                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">品种选择</label>
+                    <select id="symbol" class="w-full rounded-2xl p-3 text-sm font-bold outline-none appearance-none cursor-pointer">
                         <option value="XAUUSD">黄金 (XAUUSD)</option>
+                        <option value="US500">标普500 (US500) - 1X</option>
                         <option value="XAGUSD">白银 (XAGUSD)</option>
                         <option value="USOIL">美原油 (WTI)</option>
-                        <option value="US500">标普500 (US500)</option>
                         <option value="EURJPY">欧元日元 (EURJPY)</option>
                         <option value="BTCUSD">比特币 (BTC)</option>
-                        <option value="ETHUSD">以太坊 (ETH)</option>
                     </select>
                 </div>
                 
                 <div class="relative">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">止损价</label>
                     <input type="number" id="stopPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
-                    <span class="copy-hint" onclick="copyValue('stopPrice')">📋</span>
                 </div>
                 <div class="relative">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">入场价</label>
                     <input type="number" id="entryPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
-                    <span class="copy-hint" onclick="copyValue('entryPrice')">📋</span>
                 </div>
 
                 <div class="col-span-2 flex justify-center mt-[-8px]">
@@ -143,17 +140,19 @@
             document.getElementById('gapDisplay').innerText = gap.toFixed(3);
             if(!risk || !entry || !stop || entry === stop) return;
 
-            let contractSize = 100;
-            if (sym === "XAGUSD") contractSize = 5000;
+            // --- 关键修改：合约乘数配置 ---
+            let contractSize = 100; // 默认黄金
+            if (sym === "US500") contractSize = 1;      // 已修正为 1
+            else if (sym === "XAGUSD") contractSize = 5000;
             else if (sym === "USOIL") contractSize = 1000;
-            else if (sym === "US500") contractSize = 50;
             else if (sym === "EURJPY") contractSize = 100 * (1000 / rates.JPY);
-            else if (sym.includes("BTC") || sym.includes("ETH")) contractSize = 1;
+            else if (sym.includes("BTC")) contractSize = 1;
 
-            // 核心逻辑：先求出真实的单笔开仓手数（截断到 0.01）
+            // 1. 计算理论总手数
             let theoryTotalLots = risk / (gap * contractSize);
             if (accountType === 'cent') theoryTotalLots *= 100;
             
+            // 2. 计算实盘建议单笔手数（向下取整至 0.01）
             let realEachLot = Math.floor((theoryTotalLots / splitCount) * 100) / 100;
             if (realEachLot < 0.01) realEachLot = 0.01;
             
@@ -162,21 +161,22 @@
             document.getElementById('eachLot').innerText = realEachLot.toFixed(2);
             document.getElementById('totalLotsDisplay').innerText = realTotalLots.toFixed(2);
 
-            // 计算真实风险金
+            // 3. 反推真实风险金（始终显示 USD 单位）
             let actualRiskVal = realTotalLots * gap * contractSize;
             if (accountType === 'cent') actualRiskVal /= 100;
             document.getElementById('actualRisk').innerText = `真实风险: $${actualRiskVal.toFixed(2)}`;
 
+            // 4. 生成 TP 列表（真实盈亏模拟）
             let tpHtml = "";
             const dir = entry > stop ? 1 : -1;
-            const dec = entry.toString().split('.')[1]?.length || 3;
+            const dec = entry.toString().split('.')[1]?.length || 2;
 
             if (splitCount === 2) {
-                tpHtml += renderItem("TP1-1 (2.0)", entry + gap * 1.0 * dir, realEachLot * gap * 1.0 * contractSize, dec);
-                tpHtml += renderItem("TP1-2 (4.236)", entry + gap * 3.236 * dir, realEachLot * gap * 3.236 * contractSize, dec);
+                tpHtml += renderItem("TP1-1 (2.0) 保本位", entry + gap * 1.0 * dir, realEachLot * gap * 1.0 * contractSize, dec);
+                tpHtml += renderItem("TP1-2 (4.236) 利润位", entry + gap * 3.236 * dir, realEachLot * gap * 3.236 * contractSize, dec);
             } else {
                 for(let i=1; i<=5; i++) {
-                    tpHtml += renderItem(`TP1-${i} (2.0)`, entry + gap * 1.0 * dir, realEachLot * gap * 1.0 * contractSize, dec);
+                    tpHtml += renderItem(`TP1-${i} (2.0) 对冲位`, entry + gap * 1.0 * dir, realEachLot * gap * 1.0 * contractSize, dec);
                 }
                 const steps = [1.382, 2.382, 2.618, 3.236, 3.880];
                 const names = ["2.382", "3.382", "3.618", "4.236", "4.880"];
@@ -189,7 +189,7 @@
 
         function renderItem(label, price, profitUSD, dec) {
             let p = profitUSD;
-            if (accountType === 'cent') p /= 100;
+            if (accountType === 'cent') p /= 100; // 如果是美分账户，计算出的盈利也要换算回美金显示
             return `<div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-2xl mb-1.5 border border-slate-900/5 cursor-pointer hover:bg-slate-900/10 transition-colors" onclick="navigator.clipboard.writeText('${price.toFixed(dec)}')">
                 <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">${label}</p><p class="text-base font-black mono leading-none">${price.toFixed(dec)} <span class="text-[10px] opacity-20 ml-1">📋</span></p></div>
                 <div class="text-right"><p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">真实获利</p><p class="text-xs font-black text-green-700 leading-none">+$${p.toFixed(2)}</p></div>
@@ -206,7 +206,7 @@
             navigator.clipboard.writeText(val);
             const el = isText ? document.querySelector('.bg-yellow-500') : document.getElementById(id);
             const old = el.style.background;
-            el.style.background = isText ? '#4ade80' : '#4ade8055';
+            el.style.background = '#4ade80';
             setTimeout(() => el.style.background = old, 200);
         }
 
@@ -214,7 +214,9 @@
         inputs.forEach(id => document.getElementById(id).oninput = calculate);
         window.onload = () => {
             inputs.forEach(id => { if(localStorage.getItem('trade_'+id)) document.getElementById(id).value = localStorage.getItem('trade_'+id); });
-            updateRates();
+            if(localStorage.getItem('trade_split')) splitCount = parseInt(localStorage.getItem('trade_split'));
+            if(localStorage.getItem('trade_acc')) accountType = localStorage.getItem('trade_acc');
+            updateUI(); updateRates();
         };
     </script>
 </body>
