@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RiskMaster Pro 实战版</title>
+    <title>RiskMaster Pro 1X修复版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -13,9 +13,8 @@
         .card-bg { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); }
         input, select { background: rgba(15, 23, 42, 0.6) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
         .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4); }
-        .dot-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
-        .copy-hint { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
+        .paste-btn { position: absolute; right: 8px; top: 32px; padding: 8px; opacity: 0.5; transition: opacity 0.2s; cursor: pointer; }
+        .paste-btn:hover { opacity: 1; color: #eab308; }
     </style>
 </head>
 <body class="dark flex items-center justify-center min-h-screen p-4">
@@ -23,18 +22,18 @@
     <div class="w-full max-w-[440px] space-y-4">
         <div class="flex justify-between items-center px-2">
             <div>
-                <h1 class="text-xl font-black text-yellow-500 uppercase leading-none">RiskMaster Pro</h1>
-                <p class="text-[9px] opacity-60 font-bold tracking-widest uppercase mt-1">1乘数精确版 · 真实盈亏模拟</p>
+                <h1 class="text-xl font-black text-yellow-500 uppercase">RiskMaster Pro</h1>
+                <p class="text-[9px] opacity-60 font-bold uppercase mt-1">US500 1X 修正版 (含粘贴功能)</p>
             </div>
-            <div onclick="manualRate()" class="flex items-center gap-2 text-[10px] bg-slate-800 px-3 py-1.5 rounded-full border border-white/10 font-mono text-slate-300 cursor-pointer">
+            <div onclick="manualRate()" class="flex items-center gap-2 text-[10px] bg-slate-800 px-3 py-1.5 rounded-full border border-white/10 font-mono cursor-pointer">
                 <span id="rateDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
                 <span id="usdjpyRate">USDJPY --.--</span>
             </div>
         </div>
 
         <div class="flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5">
-            <button onclick="setAccount('standard')" id="btn-standard" class="flex-1 py-2 text-xs rounded-xl transition-all font-bold">美金账户</button>
-            <button onclick="setAccount('cent')" id="btn-cent" class="flex-1 py-2 text-xs rounded-xl transition-all font-bold text-slate-500">美分账户</button>
+            <button onclick="setAccount('standard')" id="btn-standard" class="flex-1 py-2 text-xs rounded-xl font-bold">美金账户</button>
+            <button onclick="setAccount('cent')" id="btn-cent" class="flex-1 py-2 text-xs rounded-xl font-bold text-slate-500">美分账户</button>
         </div>
 
         <div class="card-bg rounded-[2.5rem] p-6 space-y-4">
@@ -44,7 +43,7 @@
                     <input type="number" id="riskAmount" class="w-full rounded-2xl py-3 px-5 text-xl font-bold outline-none" placeholder="0.00">
                 </div>
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">品种选择</label>
+                    <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">品种</label>
                     <select id="symbol" class="w-full rounded-2xl p-3 text-sm font-bold outline-none appearance-none cursor-pointer">
                         <option value="XAUUSD">黄金 (XAUUSD)</option>
                         <option value="US500">标普500 (US500) - 1X</option>
@@ -58,15 +57,21 @@
                 <div class="relative">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">止损价</label>
                     <input type="number" id="stopPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
+                    <div class="paste-btn" onclick="pasteTo('stopPrice')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
+                    </div>
                 </div>
                 <div class="relative">
                     <label class="text-[10px] font-bold opacity-60 ml-1 mb-1 block uppercase">入场价</label>
                     <input type="number" id="entryPrice" step="0.0001" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
+                    <div class="paste-btn" onclick="pasteTo('entryPrice')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
+                    </div>
                 </div>
 
                 <div class="col-span-2 flex justify-center mt-[-8px]">
                     <div class="bg-slate-900/60 px-4 py-1.5 rounded-full border border-white/5 flex items-center gap-2">
-                        <span class="text-[9px] font-black opacity-40 uppercase tracking-widest">止损点差空间</span>
+                        <span class="text-[9px] font-black opacity-40 uppercase tracking-widest">止损空间</span>
                         <span id="gapDisplay" class="text-xs font-black text-yellow-500 mono">0.000</span>
                     </div>
                 </div>
@@ -102,32 +107,28 @@
         let accountType = 'standard';
         let rates = { JPY: 156.40 };
 
-        function setAccount(type) { accountType = type; localStorage.setItem('trade_acc', type); updateUI(); calculate(); }
-        function setSplit(n) { splitCount = n; localStorage.setItem('trade_split', n); updateUI(); calculate(); }
+        // 粘贴功能实现
+        async function pasteTo(id) {
+            try {
+                const text = await navigator.clipboard.readText();
+                const num = parseFloat(text.replace(/[^\d.]/g, ''));
+                if (!isNaN(num)) {
+                    document.getElementById(id).value = num;
+                    calculate();
+                }
+            } catch (err) {
+                console.log('无法读取剪贴板');
+            }
+        }
+
+        function setAccount(type) { accountType = type; updateUI(); calculate(); }
+        function setSplit(n) { splitCount = n; updateUI(); calculate(); }
 
         function updateUI() {
             document.getElementById('split-2').className = splitCount === 2 ? 'flex-1 py-3 rounded-xl font-black split-btn-active' : 'flex-1 py-3 rounded-xl font-black bg-slate-900/40 text-slate-500';
             document.getElementById('split-10').className = splitCount === 10 ? 'flex-1 py-3 rounded-xl font-black split-btn-active' : 'flex-1 py-3 rounded-xl font-black bg-slate-900/40 text-slate-500';
-            document.getElementById('btn-standard').className = accountType === 'standard' ? 'flex-1 py-2 text-xs rounded-xl transition-all font-bold split-btn-active' : 'flex-1 py-2 text-xs rounded-xl transition-all font-bold text-slate-500';
-            document.getElementById('btn-cent').className = accountType === 'cent' ? 'flex-1 py-2 text-xs rounded-xl transition-all font-bold split-btn-active' : 'flex-1 py-2 text-xs rounded-xl transition-all font-bold text-slate-500';
-        }
-
-        async function updateRates() {
-            const dot = document.getElementById('rateDot');
-            const txt = document.getElementById('usdjpyRate');
-            try {
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                const data = await res.json();
-                if(data?.rates?.JPY) {
-                    rates.JPY = data.rates.JPY;
-                    txt.innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
-                    dot.className = "w-2 h-2 rounded-full bg-green-500 dot-pulse";
-                }
-            } catch(e) {
-                txt.innerText = `手动 ${rates.JPY.toFixed(2)}`;
-                dot.className = "w-2 h-2 rounded-full bg-yellow-500";
-            }
-            calculate();
+            document.getElementById('btn-standard').className = accountType === 'standard' ? 'flex-1 py-2 text-xs rounded-xl font-bold split-btn-active' : 'flex-1 py-2 text-xs rounded-xl font-bold text-slate-500';
+            document.getElementById('btn-cent').className = accountType === 'cent' ? 'flex-1 py-2 text-xs rounded-xl font-bold split-btn-active' : 'flex-1 py-2 text-xs rounded-xl font-bold text-slate-500';
         }
 
         function calculate() {
@@ -140,84 +141,61 @@
             document.getElementById('gapDisplay').innerText = gap.toFixed(3);
             if(!risk || !entry || !stop || entry === stop) return;
 
-            // --- 关键修改：合约乘数配置 ---
-            let contractSize = 100; // 默认黄金
-            if (sym === "US500") contractSize = 1;      // 已修正为 1
+            let contractSize = 100; 
+            if (sym === "US500") contractSize = 1; // 乘数 1
             else if (sym === "XAGUSD") contractSize = 5000;
             else if (sym === "USOIL") contractSize = 1000;
             else if (sym === "EURJPY") contractSize = 100 * (1000 / rates.JPY);
             else if (sym.includes("BTC")) contractSize = 1;
 
-            // 1. 计算理论总手数
             let theoryTotalLots = risk / (gap * contractSize);
             if (accountType === 'cent') theoryTotalLots *= 100;
             
-            // 2. 计算实盘建议单笔手数（向下取整至 0.01）
             let realEachLot = Math.floor((theoryTotalLots / splitCount) * 100) / 100;
             if (realEachLot < 0.01) realEachLot = 0.01;
-            
             let realTotalLots = realEachLot * splitCount;
             
             document.getElementById('eachLot').innerText = realEachLot.toFixed(2);
             document.getElementById('totalLotsDisplay').innerText = realTotalLots.toFixed(2);
 
-            // 3. 反推真实风险金（始终显示 USD 单位）
             let actualRiskVal = realTotalLots * gap * contractSize;
             if (accountType === 'cent') actualRiskVal /= 100;
             document.getElementById('actualRisk').innerText = `真实风险: $${actualRiskVal.toFixed(2)}`;
 
-            // 4. 生成 TP 列表（真实盈亏模拟）
+            // TP生成逻辑...
             let tpHtml = "";
             const dir = entry > stop ? 1 : -1;
             const dec = entry.toString().split('.')[1]?.length || 2;
-
-            if (splitCount === 2) {
-                tpHtml += renderItem("TP1-1 (2.0) 保本位", entry + gap * 1.0 * dir, realEachLot * gap * 1.0 * contractSize, dec);
-                tpHtml += renderItem("TP1-2 (4.236) 利润位", entry + gap * 3.236 * dir, realEachLot * gap * 3.236 * contractSize, dec);
-            } else {
-                for(let i=1; i<=5; i++) {
-                    tpHtml += renderItem(`TP1-${i} (2.0) 对冲位`, entry + gap * 1.0 * dir, realEachLot * gap * 1.0 * contractSize, dec);
-                }
-                const steps = [1.382, 2.382, 2.618, 3.236, 3.880];
-                const names = ["2.382", "3.382", "3.618", "4.236", "4.880"];
-                steps.forEach((r, idx) => {
-                    tpHtml += renderItem(`TP2-${idx+1} (${names[idx]})`, entry + gap * r * dir, realEachLot * gap * r * contractSize, dec);
-                });
-            }
+            const items = splitCount === 2 ? [1.0, 3.236] : [1.0, 1.0, 1.0, 1.0, 1.0, 1.382, 2.382, 2.618, 3.236, 3.880];
+            
+            items.forEach((r, i) => {
+                const label = splitCount === 2 ? (i===0?"TP1 保本位":"TP2 利润位") : (i<5?`TP1-${i+1}`:`TP2-${i-4}`);
+                const tpPrice = entry + gap * r * dir;
+                const tpProfit = realEachLot * gap * r * contractSize / (accountType === 'cent' ? 100 : 1);
+                tpHtml += `<div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-2xl mb-1 border border-slate-900/5 cursor-pointer" onclick="navigator.clipboard.writeText('${tpPrice.toFixed(dec)}')">
+                    <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase">${label}</p><p class="text-sm font-black mono">${tpPrice.toFixed(dec)}</p></div>
+                    <div class="text-right"><p class="text-[8px] font-black opacity-40 uppercase">获利</p><p class="text-xs font-black text-green-700">+$${tpProfit.toFixed(2)}</p></div>
+                </div>`;
+            });
             document.getElementById('tpList').innerHTML = tpHtml;
         }
 
-        function renderItem(label, price, profitUSD, dec) {
-            let p = profitUSD;
-            if (accountType === 'cent') p /= 100; // 如果是美分账户，计算出的盈利也要换算回美金显示
-            return `<div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-2xl mb-1.5 border border-slate-900/5 cursor-pointer hover:bg-slate-900/10 transition-colors" onclick="navigator.clipboard.writeText('${price.toFixed(dec)}')">
-                <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">${label}</p><p class="text-base font-black mono leading-none">${price.toFixed(dec)} <span class="text-[10px] opacity-20 ml-1">📋</span></p></div>
-                <div class="text-right"><p class="text-[8px] font-black opacity-40 uppercase tracking-tighter">真实获利</p><p class="text-xs font-black text-green-700 leading-none">+$${p.toFixed(2)}</p></div>
-            </div>`;
-        }
-
-        function manualRate() {
-            const newVal = prompt("输入 USDJPY 汇率:", rates.JPY);
-            if(newVal && !isNaN(newVal)) { rates.JPY = parseFloat(newVal); calculate(); }
-        }
-
-        function copyValue(id, isText = false) {
-            const val = isText ? document.getElementById(id).innerText : document.getElementById(id).value;
-            navigator.clipboard.writeText(val);
-            const el = isText ? document.querySelector('.bg-yellow-500') : document.getElementById(id);
-            const old = el.style.background;
-            el.style.background = '#4ade80';
-            setTimeout(() => el.style.background = old, 200);
+        async function updateRates() {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                if(data?.rates?.JPY) {
+                    rates.JPY = data.rates.JPY;
+                    document.getElementById('usdjpyRate').innerText = `USDJPY ${rates.JPY.toFixed(2)}`;
+                    document.getElementById('rateDot').className = "w-2 h-2 rounded-full bg-green-500";
+                }
+            } catch(e) {}
+            calculate();
         }
 
         const inputs = ['riskAmount', 'symbol', 'entryPrice', 'stopPrice'];
         inputs.forEach(id => document.getElementById(id).oninput = calculate);
-        window.onload = () => {
-            inputs.forEach(id => { if(localStorage.getItem('trade_'+id)) document.getElementById(id).value = localStorage.getItem('trade_'+id); });
-            if(localStorage.getItem('trade_split')) splitCount = parseInt(localStorage.getItem('trade_split'));
-            if(localStorage.getItem('trade_acc')) accountType = localStorage.getItem('trade_acc');
-            updateUI(); updateRates();
-        };
+        window.onload = () => { updateUI(); updateRates(); };
     </script>
 </body>
 </html>
