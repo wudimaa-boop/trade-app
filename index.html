@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RiskMaster Final Coordinates</title>
+    <title>RiskMaster Final 4.618</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -24,7 +24,10 @@
 
     <div class="w-full max-w-[420px] space-y-4">
         <div class="flex justify-between items-center px-2">
-            <h1 class="text-2xl font-black text-yellow-500 italic">RISKMASTER <span class="text-[10px] not-italic text-white opacity-40">COORDS</span></h1>
+            <div>
+                <h1 class="text-2xl font-black text-yellow-500 italic">RISKMASTER</h1>
+                <p class="text-[9px] opacity-40 font-bold uppercase tracking-[0.3em] text-white">FIBONACCI 4.618</p>
+            </div>
             <div onclick="updateRates()" class="text-right cursor-pointer bg-slate-800/40 p-2 rounded-xl border border-white/5">
                 <p id="usdjpyRate" class="text-xs font-mono font-bold text-green-500">USDJPY --.--</p>
             </div>
@@ -52,7 +55,7 @@
                 </div>
 
                 <div class="relative">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Stop Loss (位置 0)</label>
+                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Stop Loss (Pos 0)</label>
                     <input type="number" id="stopPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
                     <div class="action-icon" onclick="smartPaste('stopPrice')">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
@@ -60,7 +63,7 @@
                 </div>
 
                 <div class="relative">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Entry Price (位置 1)</label>
+                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Entry Price (Pos 1)</label>
                     <input type="number" id="entryPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
                     <div class="action-icon" onclick="smartPaste('entryPrice')">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
@@ -69,15 +72,15 @@
             </div>
 
             <div class="flex bg-slate-900/60 p-1.5 rounded-xl border border-white/5 gap-1">
-                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">2 单 (位置 2 & 4.236)</button>
-                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">10 单 (位置 2 至 4.88)</button>
+                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">2 单模式</button>
+                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">10 单模式</button>
             </div>
         </div>
 
         <div class="bg-yellow-500 rounded-[2.5rem] p-6 text-slate-900 shadow-2xl relative">
             <div class="flex justify-between items-center mb-6">
                 <div class="cursor-pointer" onclick="copyText('eachLot', '单笔手数')">
-                    <p class="text-[10px] font-black uppercase opacity-60 mb-1 italic">Each Lot (Click to Copy)</p>
+                    <p class="text-[10px] font-black uppercase opacity-60 mb-1 italic">Click to Copy Lots</p>
                     <div class="flex items-baseline gap-1">
                         <span id="eachLot" class="text-6xl font-black tracking-tighter leading-none">0.00</span>
                         <span class="text-sm font-black italic opacity-60">Lots</span>
@@ -96,7 +99,6 @@
         let splitCount = 2;
         let rates = { JPY: 156.40 };
 
-        // 粘贴功能保持不变
         async function smartPaste(id) {
             try {
                 const text = await navigator.clipboard.readText();
@@ -157,44 +159,42 @@
             const dir = entry > stop ? 1 : -1;
             const dec = entry.toString().split('.')[1]?.length || 2;
             
-            // 核心逻辑：这里存储的是 (R数 = 位置 - 1)
-            let tpRatios = [];
+            // ------------------------------------------------------------------
+            // FINAL CONFIGURATION (Coordinates based: 0=SL, 1=Entry)
+            // ------------------------------------------------------------------
+            let tpRatios = []; // Values here are (Position - 1)
             
             if (splitCount === 2) {
-                // 2单模式：位置 2 和 位置 4.236
-                tpRatios = [
-                    1.0,   // Position 2
-                    3.236  // Position 4.236
-                ];
+                // 2单模式: Pos 2.0 & Pos 4.236
+                tpRatios = [1.0, 3.236];
             } else {
-                // 10单模式：严格按照你的坐标指示
+                // 10单模式: 细腻分仓 + 斐波那契收官
                 tpRatios = [
-                    1.0, 1.0, 1.0, 1.0, 1.0, // 5单在位置 2
-                    1.382, // Position 2.382
-                    2.382, // Position 3.382
-                    2.618, // Position 3.618
-                    3.236, // Position 4.236
-                    3.880  // Position 4.88
+                    1.0, 1.0, 1.0, 1.0, 1.0, // TP1-5: 位置 2.0 (回收成本)
+                    1.382, // TP6: 位置 2.382
+                    2.382, // TP7: 位置 3.382 (密集区前)
+                    2.618, // TP8: 位置 3.618 (密集区后)
+                    3.236, // TP9: 位置 4.236
+                    3.618  // TP10: 位置 4.618 (4.618 - 1 = 3.618R)
                 ];
             }
             
             tpRatios.forEach((r, i) => {
-                // 显示逻辑：R + 1 = 坐标位置
                 const position = (r + 1).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
-                
                 let label = "";
+                
                 if(splitCount === 2) {
                     label = i === 0 ? `TP1 (位置 ${position})` : `TP2 (位置 ${position})`;
                 } else {
-                    if (i < 5) label = `TP ${i+1} (位置 ${position})`; // 前5单
-                    else label = `TP ${i+1} (位置 ${position})`; // 后5单
+                    if (i < 5) label = `TP ${i+1} (位置 2.0 回收)`;
+                    else label = `TP ${i+1} (位置 ${position})`;
                 }
                 
                 const tpPrice = (entry + gap * r * dir).toFixed(dec);
                 
                 tpHtml += `<div class="flex justify-between items-center bg-slate-900/5 p-2.5 rounded-xl mb-1 border border-slate-900/5 cursor-pointer active:scale-95 transition-all" onclick="navigator.clipboard.writeText('${tpPrice}');showToast('TP已复制')">
                     <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase mb-0.5 tracking-tighter">${label}</p><p class="text-sm font-black mono">${tpPrice}</p></div>
-                    <p class="text-[10px] font-black opacity-30 italic font-mono">${r.toFixed(3)}R</p>
+                    <p class="text-[10px] font-black opacity-30 italic font-mono">${position}</p>
                 </div>`;
             });
             document.getElementById('tpList').innerHTML = tpHtml;
