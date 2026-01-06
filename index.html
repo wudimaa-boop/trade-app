@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>计算器</title>
+    <title>开仓计算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -93,11 +93,9 @@
 
     <div class="w-full max-w-[420px] space-y-5">
         
-        <div class="flex justify-between items-end px-2 select-none">
-            <div>
-                <h1 class="text-3xl font-black text-yellow-500 italic tracking-tighter cursor-default">计算器</h1>
-                <p class="text-[10px] text-gray-400 font-bold tracking-[0.3em] uppercase mt-1">旗舰版</p>
-            </div>
+        <div class="flex justify-between items-center px-2 select-none h-12">
+            <h1 class="text-2xl font-black text-yellow-500 italic tracking-tight cursor-default">开仓计算器</h1>
+            
             <div onclick="updateRates()" class="text-right cursor-pointer py-1.5 px-3 rounded-lg hover:bg-white/5 transition-all group" title="点击刷新汇率">
                 <p class="text-[10px] text-gray-500 mb-0.5 group-hover:text-yellow-500 transition-colors">美元/日元 汇率</p>
                 <p id="usdjpyRate" class="text-sm font-mono font-bold text-emerald-500">连接中...</p>
@@ -179,13 +177,12 @@
 
         function setSplit(n) { splitCount = n; updateUI(); calculate(); }
 
-        // 复制纯文本 (用于手数和TP)
+        // 复制功能
         function copyText(idOrText) {
             const val = document.getElementById(idOrText) ? document.getElementById(idOrText).innerText : idOrText;
             doCopy(val);
         }
 
-        // 复制输入框的值 (用于入场和止损)
         function copyInput(id) {
             const val = document.getElementById(id).value;
             if(val) doCopy(val);
@@ -238,20 +235,20 @@
             const dir = entry > stop ? 1 : -1;
             const dec = entry.toString().split('.')[1]?.length || 2;
             
-            // 策略参数配置
+            // 策略逻辑 (4.618收官)
             let tpRatios = []; 
             if (splitCount === 2) {
-                // 2单模式: 位置 2.0 和 4.236
+                // 2单模式: 2.0 & 4.236
                 tpRatios = [1.0, 3.236]; 
             } else {
-                // 10单模式 (最终版):
+                // 10单模式: 前5单保本，后续精细分布，4.618收尾
                 tpRatios = [
-                    1.0, 1.0, 1.0, 1.0, 1.0, // 前5单 (位置 2.0)
-                    1.382, // 第6单 (位置 2.382)
-                    2.382, // 第7单 (位置 3.382)
-                    2.618, // 第8单 (位置 3.618)
-                    3.236, // 第9单 (位置 4.236)
-                    3.618  // 第10单 (位置 4.618)
+                    1.0, 1.0, 1.0, 1.0, 1.0, // Pos 2.0
+                    1.382, // Pos 2.382
+                    2.382, // Pos 3.382
+                    2.618, // Pos 3.618
+                    3.236, // Pos 4.236
+                    3.618  // Pos 4.618
                 ];
             }
             
