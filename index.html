@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>风控大师 · 旗舰版</title>
+    <title>计算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -95,8 +95,8 @@
         
         <div class="flex justify-between items-end px-2 select-none">
             <div>
-                <h1 class="text-3xl font-black text-yellow-500 italic tracking-tighter cursor-default">风控大师</h1>
-                <p class="text-[10px] text-gray-400 font-bold tracking-[0.3em] uppercase mt-1">旗舰版 · 4.618</p>
+                <h1 class="text-3xl font-black text-yellow-500 italic tracking-tighter cursor-default">计算器</h1>
+                <p class="text-[10px] text-gray-400 font-bold tracking-[0.3em] uppercase mt-1">旗舰版</p>
             </div>
             <div onclick="updateRates()" class="text-right cursor-pointer py-1.5 px-3 rounded-lg hover:bg-white/5 transition-all group" title="点击刷新汇率">
                 <p class="text-[10px] text-gray-500 mb-0.5 group-hover:text-yellow-500 transition-colors">美元/日元 汇率</p>
@@ -238,13 +238,13 @@
             const dir = entry > stop ? 1 : -1;
             const dec = entry.toString().split('.')[1]?.length || 2;
             
-            // 策略参数配置 (Coordinates Logic)
+            // 策略参数配置
             let tpRatios = []; 
             if (splitCount === 2) {
                 // 2单模式: 位置 2.0 和 4.236
                 tpRatios = [1.0, 3.236]; 
             } else {
-                // 10单模式 (最终确认版):
+                // 10单模式 (最终版):
                 tpRatios = [
                     1.0, 1.0, 1.0, 1.0, 1.0, // 前5单 (位置 2.0)
                     1.382, // 第6单 (位置 2.382)
