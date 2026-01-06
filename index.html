@@ -2,96 +2,147 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RiskMaster Final 4.618</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>风控大师 Pro PC/Mobile</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans SC', sans-serif; background: #0f172a; color: #f1f5f9; }
+        body { font-family: 'Noto Sans SC', sans-serif; background: #111827; color: #f3f4f6; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .card-bg { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); }
-        input, select { background: rgba(15, 23, 42, 0.8) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
-        .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); }
-        .action-icon { position: absolute; right: 10px; top: 32px; padding: 6px; opacity: 0.5; cursor: pointer; transition: all 0.2s; }
-        .action-icon:active { opacity: 1; color: #eab308; transform: scale(0.9); }
-        .copy-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #eab308; color: #000; padding: 8px 20px; border-radius: 99px; font-weight: bold; display: none; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        
+        /* 玻璃拟态 - 兼容PC深色背景 */
+        .glass-card { 
+            background: rgba(31, 41, 55, 0.7); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(12px); 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 输入框优化 */
+        input, select { 
+            background: rgba(17, 24, 39, 0.6) !important; 
+            color: #ffffff !important; 
+            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+            transition: all 0.2s ease;
+            cursor: text;
+        }
+        /* 电脑端Focus状态更明显 */
+        input:focus, select:focus {
+            border-color: #eab308 !important;
+            background: rgba(17, 24, 39, 0.9) !important;
+            box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
+        }
+        
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* 按钮状态 */
+        .mode-btn-active { 
+            background: #eab308; 
+            color: #111827; 
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+        }
+        .mode-btn-inactive {
+            background: rgba(255, 255, 255, 0.05);
+            color: #9ca3af;
+        }
+        /* 电脑端Hover效果 */
+        .hover-effect:hover {
+            background-color: rgba(234, 179, 8, 0.15);
+            border-color: rgba(234, 179, 8, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* 复制提示 Toast */
+        .copy-toast { 
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%); 
+            background: #eab308; color: #000; padding: 8px 24px; 
+            border-radius: 99px; font-weight: bold; font-size: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none; z-index: 100; pointer-events: none;
+            animation: fadeInOut 1.5s ease-in-out forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -10px); }
+            15% { opacity: 1; transform: translate(-50%, 0); }
+            85% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-6">
 
-    <div id="toast" class="copy-toast text-xs uppercase tracking-widest">已复制</div>
+    <div id="toast" class="copy-toast">已复制</div>
 
-    <div class="w-full max-w-[420px] space-y-4">
-        <div class="flex justify-between items-center px-2">
+    <div class="w-full max-w-[420px] space-y-5">
+        
+        <div class="flex justify-between items-end px-2 select-none">
             <div>
-                <h1 class="text-2xl font-black text-yellow-500 italic">RISKMASTER</h1>
-                <p class="text-[9px] opacity-40 font-bold uppercase tracking-[0.3em] text-white">FIBONACCI 4.618</p>
+                <h1 class="text-3xl font-black text-yellow-500 italic tracking-tighter cursor-default">RISK<span class="text-white">MASTER</span></h1>
+                <p class="text-[10px] text-gray-500 font-bold tracking-[0.3em] uppercase mt-1">Universal Edition</p>
             </div>
-            <div onclick="updateRates()" class="text-right cursor-pointer bg-slate-800/40 p-2 rounded-xl border border-white/5">
-                <p id="usdjpyRate" class="text-xs font-mono font-bold text-green-500">USDJPY --.--</p>
+            <div onclick="updateRates()" class="text-right cursor-pointer py-1.5 px-3 rounded-lg hover:bg-white/5 transition-all group" title="点击刷新汇率">
+                <p class="text-[10px] text-gray-500 mb-0.5 group-hover:text-yellow-500 transition-colors">USDJPY RATE</p>
+                <p id="usdjpyRate" class="text-sm font-mono font-bold text-emerald-500">Connecting...</p>
             </div>
         </div>
 
-        <div class="card-bg rounded-[2.5rem] p-6 space-y-5 shadow-2xl">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic tracking-widest">Risk Amount (USD)</label>
-                    <input type="number" id="riskAmount" onclick="this.select()" class="w-full rounded-2xl py-4 px-5 text-3xl font-black outline-none border-none focus:ring-2 focus:ring-yellow-500/50" placeholder="0.00">
-                </div>
+        <div class="glass-card rounded-[2rem] p-8 space-y-6">
+            
+            <div>
+                <label class="text-xs font-bold text-gray-400 ml-1 mb-2 block uppercase tracking-wide">Risk Amount ($)</label>
+                <input type="number" id="riskAmount" onclick="this.select()" class="w-full rounded-xl py-4 px-5 text-3xl font-black outline-none placeholder-gray-700 font-mono focus:ring-0" placeholder="0.00">
+            </div>
 
+            <div class="grid grid-cols-2 gap-5">
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic tracking-widest">Symbol</label>
-                    <select id="symbol" class="w-full rounded-xl p-3 text-sm font-bold outline-none appearance-none cursor-pointer">
-                        <option value="US500" selected>标普 US500 (1X)</option>
-                        <option value="NAS100">纳指 US100 (1X)</option>
-                        <option value="US30">道指 US30 (1X)</option>
-                        <option value="XAUUSD">黄金 XAUUSD</option>
-                        <option value="XAGUSD">白银 XAGUSD</option>
-                        <option value="USOIL">美原油 WTI</option>
-                        <option value="EURJPY">欧元日元 EURJPY</option>
-                        <option value="BTCUSD">比特币 BTCUSD</option>
+                    <label class="text-xs font-bold text-gray-400 ml-1 mb-2 block uppercase tracking-wide">Symbol</label>
+                    <select id="symbol" class="w-full rounded-xl p-3.5 text-sm font-bold outline-none appearance-none cursor-pointer">
+                        <option value="US500" selected>标普500 (US500) - 1X</option>
+                        <option value="NAS100">纳斯达克 (US100) - 1X</option>
+                        <option value="US30">道琼斯 (US30) - 1X</option>
+                        <option value="XAUUSD">黄金 (XAUUSD)</option>
+                        <option value="XAGUSD">白银 (XAGUSD)</option>
+                        <option value="USOIL">美原油 (WTI)</option>
+                        <option value="EURJPY">欧元日元 (EURJPY)</option>
+                        <option value="BTCUSD">比特币 (BTC)</option>
                     </select>
                 </div>
 
-                <div class="relative">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Stop Loss (Pos 0)</label>
-                    <input type="number" id="stopPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
-                    <div class="action-icon" onclick="smartPaste('stopPrice')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                    </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 ml-1 mb-2 block uppercase">Stop Loss (0)</label>
+                    <input type="number" id="stopPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3.5 font-bold outline-none text-lg">
                 </div>
 
-                <div class="relative">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Entry Price (Pos 1)</label>
-                    <input type="number" id="entryPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
-                    <div class="action-icon" onclick="smartPaste('entryPrice')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                    </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 ml-1 mb-2 block uppercase">Entry Price (1)</label>
+                    <input type="number" id="entryPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3.5 font-bold outline-none text-lg">
                 </div>
             </div>
 
-            <div class="flex bg-slate-900/60 p-1.5 rounded-xl border border-white/5 gap-1">
-                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">2 单模式</button>
-                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">10 单模式</button>
+            <div class="flex bg-gray-900/50 p-1.5 rounded-xl gap-1.5">
+                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-3 text-xs rounded-lg transition-all font-bold">2单模式</button>
+                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-3 text-xs rounded-lg transition-all font-bold">10单模式</button>
             </div>
         </div>
 
-        <div class="bg-yellow-500 rounded-[2.5rem] p-6 text-slate-900 shadow-2xl relative">
-            <div class="flex justify-between items-center mb-6">
-                <div class="cursor-pointer" onclick="copyText('eachLot', '单笔手数')">
-                    <p class="text-[10px] font-black uppercase opacity-60 mb-1 italic">Click to Copy Lots</p>
+        <div class="bg-yellow-500 rounded-[2rem] p-8 text-gray-900 shadow-2xl shadow-yellow-500/10 transition-transform">
+            <div class="flex justify-between items-start mb-6 select-none">
+                <div class="cursor-pointer group" onclick="copyValue('eachLot', '单笔手数')" title="点击复制手数">
+                    <p class="text-[10px] font-black opacity-60 uppercase mb-1 group-hover:opacity-100 transition-opacity">单笔手数 (Click Copy)</p>
                     <div class="flex items-baseline gap-1">
-                        <span id="eachLot" class="text-6xl font-black tracking-tighter leading-none">0.00</span>
-                        <span class="text-sm font-black italic opacity-60">Lots</span>
+                        <span id="eachLot" class="text-6xl font-black tracking-tighter mono group-active:scale-95 transition-transform">0.00</span>
+                        <span class="text-sm font-black opacity-60">LOTS</span>
                     </div>
                 </div>
-                <div class="text-right flex flex-col items-end">
-                    <p id="actualRisk" class="text-[9px] font-black bg-slate-900 text-yellow-500 px-3 py-1 rounded-full mb-1 tracking-tighter italic">RISK: $0.00</p>
-                    <p class="text-[10px] font-bold opacity-60 italic">TOTAL: <span id="totalLotsDisplay">0.00</span></p>
+                <div class="text-right pt-2">
+                    <p id="actualRisk" class="text-[10px] font-black bg-gray-900 text-yellow-500 px-3 py-1.5 rounded mb-1">RISK: $0.00</p>
+                    <p class="text-[10px] font-bold opacity-60">TOTAL: <span id="totalLotsDisplay" class="mono">0.00</span></p>
                 </div>
             </div>
-            <div id="tpList" class="space-y-1.5 border-t border-slate-900/10 pt-4 max-h-[30vh] overflow-y-auto pr-1"></div>
+
+            <div id="tpList" class="space-y-1.5 border-t border-gray-900/10 pt-4 max-h-[40vh] overflow-y-auto pr-1">
+                </div>
         </div>
     </div>
 
@@ -99,38 +150,34 @@
         let splitCount = 2;
         let rates = { JPY: 156.40 };
 
-        async function smartPaste(id) {
-            try {
-                const text = await navigator.clipboard.readText();
-                const num = parseFloat(text.replace(/[^\d.]/g, ''));
-                if (!isNaN(num)) {
-                    document.getElementById(id).value = num;
-                    calculate(); showToast("已粘贴");
-                }
-            } catch (err) {
-                const el = document.getElementById(id);
-                el.value = ""; el.focus(); showToast("请长按粘贴");
-            }
-        }
+        function setSplit(n) { splitCount = n; updateUI(); calculate(); }
 
-        function copyText(id, label) {
-            const val = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(val);
-            showToast(label + " 已复制");
+        // 核心复制功能 (PC/手机通用)
+        function copyValue(text, label) {
+            // 如果传入的是ID，则取innerText
+            const val = document.getElementById(text) ? document.getElementById(text).innerText : text;
+            
+            navigator.clipboard.writeText(val).then(() => {
+                showToast(`已复制: ${val}`);
+            }).catch(err => {
+                console.error('复制失败', err);
+            });
         }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.innerText = msg; t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 1000);
+            t.innerText = msg;
+            // 重置动画
+            t.style.display = 'none';
+            t.offsetHeight; /* trigger reflow */
+            t.style.display = 'block';
         }
 
-        function setSplit(n) { splitCount = n; updateUI(); calculate(); }
-
         function updateUI() {
-            const common = "flex-1 py-2 text-[10px] rounded-lg font-black transition-all uppercase italic ";
-            document.getElementById('split-2').className = common + (splitCount === 2 ? 'split-btn-active' : 'text-slate-500 bg-transparent');
-            document.getElementById('split-10').className = common + (splitCount === 10 ? 'split-btn-active' : 'text-slate-500 bg-transparent');
+            const activeClass = "mode-btn-active";
+            const inactiveClass = "mode-btn-inactive hover:bg-white/10";
+            document.getElementById('split-2').className = splitCount === 2 ? `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${activeClass}` : `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${inactiveClass}`;
+            document.getElementById('split-10').className = splitCount === 10 ? `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${activeClass}` : `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${inactiveClass}`;
         }
 
         function calculate() {
@@ -139,6 +186,7 @@
             const stop = parseFloat(document.getElementById('stopPrice').value) || 0;
             const sym = document.getElementById('symbol').value;
             const gap = Math.abs(entry - stop);
+            
             if(!risk || !entry || !stop || entry === stop) return;
 
             let contractSize = 100;
@@ -159,23 +207,18 @@
             const dir = entry > stop ? 1 : -1;
             const dec = entry.toString().split('.')[1]?.length || 2;
             
-            // ------------------------------------------------------------------
-            // FINAL CONFIGURATION (Coordinates based: 0=SL, 1=Entry)
-            // ------------------------------------------------------------------
-            let tpRatios = []; // Values here are (Position - 1)
-            
+            // 策略参数
+            let tpRatios = []; 
             if (splitCount === 2) {
-                // 2单模式: Pos 2.0 & Pos 4.236
-                tpRatios = [1.0, 3.236];
+                tpRatios = [1.0, 3.236]; // 2单模式
             } else {
-                // 10单模式: 细腻分仓 + 斐波那契收官
                 tpRatios = [
-                    1.0, 1.0, 1.0, 1.0, 1.0, // TP1-5: 位置 2.0 (回收成本)
-                    1.382, // TP6: 位置 2.382
-                    2.382, // TP7: 位置 3.382 (密集区前)
-                    2.618, // TP8: 位置 3.618 (密集区后)
-                    3.236, // TP9: 位置 4.236
-                    3.618  // TP10: 位置 4.618 (4.618 - 1 = 3.618R)
+                    1.0, 1.0, 1.0, 1.0, 1.0, // 前5单
+                    1.382, // 6
+                    2.382, // 7 (密集)
+                    2.618, // 8 (密集)
+                    3.236, // 9
+                    3.618  // 10 (4.618位置)
                 ];
             }
             
@@ -184,36 +227,42 @@
                 let label = "";
                 
                 if(splitCount === 2) {
-                    label = i === 0 ? `TP1 (位置 ${position})` : `TP2 (位置 ${position})`;
+                    label = `TP${i+1} (位置 ${position})`;
                 } else {
-                    if (i < 5) label = `TP ${i+1} (位置 2.0 回收)`;
-                    else label = `TP ${i+1} (位置 ${position})`;
+                    if (i < 5) label = `TP${i+1} (2.0 回收)`; 
+                    else label = `TP${i+1} (位置 ${position})`;
                 }
                 
                 const tpPrice = (entry + gap * r * dir).toFixed(dec);
                 
-                tpHtml += `<div class="flex justify-between items-center bg-slate-900/5 p-2.5 rounded-xl mb-1 border border-slate-900/5 cursor-pointer active:scale-95 transition-all" onclick="navigator.clipboard.writeText('${tpPrice}');showToast('TP已复制')">
-                    <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase mb-0.5 tracking-tighter">${label}</p><p class="text-sm font-black mono">${tpPrice}</p></div>
-                    <p class="text-[10px] font-black opacity-30 italic font-mono">${position}</p>
+                // 增加了 hover-effect 类，专为电脑端鼠标设计
+                tpHtml += `<div class="flex justify-between items-center bg-gray-900/10 p-3 rounded-xl mb-1.5 border border-gray-900/5 cursor-pointer hover-effect transition-all duration-200" onclick="copyValue('${tpPrice}', '价格')">
+                    <div class="text-left"><p class="text-[9px] font-bold opacity-50 uppercase mb-0.5 tracking-wider">${label}</p><p class="text-base font-black mono">${tpPrice}</p></div>
+                    <p class="text-[10px] font-bold opacity-30 mono italic">${position}</p>
                 </div>`;
             });
             document.getElementById('tpList').innerHTML = tpHtml;
         }
 
         async function updateRates() {
+            const el = document.getElementById('usdjpyRate');
             try {
+                el.innerText = "...";
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
                 const data = await res.json();
                 if(data?.rates?.JPY) {
                     rates.JPY = data.rates.JPY;
-                    document.getElementById('usdjpyRate').innerText = "USDJPY " + rates.JPY.toFixed(2);
+                    el.innerText = "USDJPY " + rates.JPY.toFixed(2);
                 }
-            } catch(e) {}
+            } catch(e) {
+                el.innerText = "Error";
+            }
             calculate();
         }
 
-        const inputs = ['riskAmount', 'symbol', 'entryPrice', 'stopPrice'];
-        inputs.forEach(id => document.getElementById(id).oninput = calculate);
+        ['riskAmount', 'symbol', 'entryPrice', 'stopPrice'].forEach(id => {
+            document.getElementById(id).oninput = calculate;
+        });
         window.onload = () => { updateUI(); updateRates(); };
     </script>
 </body>
