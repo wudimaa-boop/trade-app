@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RiskMaster Ultimate</title>
+    <title>RiskMaster Pro Max</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -14,81 +14,88 @@
         .split-btn-active { background: #eab308; color: #0f172a; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); }
         .action-icon { position: absolute; right: 10px; top: 32px; padding: 6px; opacity: 0.5; cursor: pointer; transition: all 0.2s; }
         .action-icon:active { opacity: 1; color: #eab308; transform: scale(0.9); }
-        .copy-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #eab308; color: #000; padding: 8px 20px; rounded-full: 99px; font-weight: bold; display: none; z-index: 100; }
+        .copy-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #eab308; color: #000; padding: 8px 20px; border-radius: 99px; font-weight: bold; display: none; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="toast" class="copy-toast rounded-full shadow-lg text-sm">已复制到剪贴板</div>
+    <div id="toast" class="copy-toast text-xs uppercase tracking-widest">COPIED</div>
 
     <div class="w-full max-w-[420px] space-y-4">
-        <div class="flex justify-between items-end px-2">
-            <div>
-                <h1 class="text-2xl font-black text-yellow-500 italic tracking-tighter">RISKMASTER</h1>
-                <p class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em]">Precision Trading 1X</p>
-            </div>
-            <div onclick="updateRates()" class="bg-slate-800/50 p-2 rounded-xl border border-white/5 text-right cursor-pointer">
-                <p class="text-[8px] opacity-40 font-bold">USDJPY RATE</p>
-                <p id="usdjpyRate" class="text-xs font-mono font-bold text-green-500">--.--</p>
+        <div class="flex justify-between items-center px-2">
+            <h1 class="text-2xl font-black text-yellow-500 italic italic">RISKMASTER <span class="text-[10px] not-italic text-white opacity-40">1X EDITION</span></h1>
+            <div onclick="updateRates()" class="text-right cursor-pointer bg-slate-800/40 p-2 rounded-xl border border-white/5">
+                <p id="usdjpyRate" class="text-xs font-mono font-bold text-green-500">USDJPY --.--</p>
             </div>
         </div>
 
-        <div class="card-bg rounded-[2rem] p-6 space-y-5 shadow-2xl">
-            <div>
-                <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Step 1: 定损风险金 (USD)</label>
-                <input type="number" id="riskAmount" onclick="this.select()" class="w-full rounded-2xl py-4 px-5 text-3xl font-black outline-none border-none focus:ring-2 focus:ring-yellow-500/50" placeholder="0.00">
-            </div>
-
+        <div class="card-bg rounded-[2.5rem] p-6 space-y-5">
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">Step 2: 交易品种</label>
+                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase tracking-widest">Risk Amount (USD)</label>
+                    <input type="number" id="riskAmount" onclick="this.select()" class="w-full rounded-2xl py-4 px-5 text-3xl font-black outline-none border-none focus:ring-2 focus:ring-yellow-500/50" placeholder="0.00">
+                </div>
+
+                <div class="col-span-2">
+                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase tracking-widest">Symbol (品种)</label>
                     <select id="symbol" class="w-full rounded-xl p-3 text-sm font-bold outline-none appearance-none cursor-pointer">
-                        <option value="XAUUSD">黄金 (XAUUSD)</option>
-                        <option value="US500" selected>标普500 (US500) - 1X</option>
-                        <option value="XAGUSD">白银 (XAGUSD)</option>
-                        <option value="EURJPY">欧元日元 (EURJPY)</option>
+                        <optgroup label="指数 (乘数1x)">
+                            <option value="US500" selected>标普 US500</option>
+                            <option value="NAS100">纳指 US100</option>
+                            <option value="US30">道指 US30</option>
+                            <option value="DXY">美指 DXY</option>
+                        </optgroup>
+                        <optgroup label="大宗商品">
+                            <option value="XAUUSD">黄金 XAUUSD</option>
+                            <option value="XAGUSD">白银 XAGUSD</option>
+                            <option value="USOIL">美原油 WTI</option>
+                        </optgroup>
+                        <optgroup label="主流外汇/币">
+                            <option value="EURJPY">欧元日元 EURJPY</option>
+                            <option value="BTCUSD">比特币 BTCUSD</option>
+                            <option value="ETHUSD">以太坊 ETHUSD</option>
+                        </optgroup>
                     </select>
                 </div>
 
                 <div class="relative">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">止损价</label>
-                    <input type="number" id="stopPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10" placeholder="0.00">
-                    <div class="action-icon" onclick="smartPaste('stopPrice')" title="粘贴价格">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase">Stop Loss</label>
+                    <input type="number" id="stopPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
+                    <div class="action-icon" onclick="smartPaste('stopPrice')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
                     </div>
                 </div>
 
                 <div class="relative">
-                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase italic">入场价</label>
-                    <input type="number" id="entryPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10" placeholder="0.00">
-                    <div class="action-icon" onclick="smartPaste('entryPrice')" title="粘贴价格">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <label class="text-[10px] font-bold opacity-40 ml-1 mb-1 block uppercase">Entry Price</label>
+                    <input type="number" id="entryPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3 font-bold outline-none text-base pr-10">
+                    <div class="action-icon" onclick="smartPaste('entryPrice')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
                     </div>
                 </div>
             </div>
 
-            <div class="flex bg-slate-900/60 p-1.5 rounded-2xl border border-white/5 gap-2">
-                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-2 text-[10px] rounded-xl font-black transition-all uppercase italic">2单 (保本型)</button>
-                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-2 text-[10px] rounded-xl font-black transition-all uppercase italic">10单 (网格型)</button>
+            <div class="flex bg-slate-900/60 p-1 rounded-xl border border-white/5 gap-1">
+                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">2 单模式</button>
+                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-2 text-[10px] rounded-lg font-black transition-all">10 单模式</button>
             </div>
         </div>
 
-        <div class="bg-yellow-500 rounded-[2.5rem] p-6 text-slate-900 shadow-2xl shadow-yellow-500/10">
+        <div class="bg-yellow-500 rounded-[2.5rem] p-6 text-slate-900 shadow-2xl relative">
             <div class="flex justify-between items-center mb-6">
                 <div class="cursor-pointer" onclick="copyText('eachLot', '单笔手数')">
-                    <p class="text-[10px] font-black uppercase opacity-60 mb-1">建议单笔 (点击复制)</p>
+                    <p class="text-[10px] font-black uppercase opacity-60 mb-1 italic">Click to Copy Lots</p>
                     <div class="flex items-baseline gap-1">
-                        <span id="eachLot" class="text-6xl font-black tracking-tighter">0.00</span>
-                        <span class="text-sm font-black italic opacity-60">LOTS</span>
+                        <span id="eachLot" class="text-6xl font-black tracking-tighter leading-none">0.00</span>
+                        <span class="text-sm font-black italic opacity-60">Lots</span>
                     </div>
                 </div>
-                <div class="text-right">
-                    <p id="actualRisk" class="text-[10px] font-black bg-slate-900 text-yellow-500 px-3 py-1 rounded-full mb-2">RISK: $0.00</p>
-                    <p class="text-[10px] font-bold opacity-60 italic">TOTAL: <span id="totalLotsDisplay" class="font-black">0.00</span></p>
+                <div class="text-right flex flex-col items-end">
+                    <p id="actualRisk" class="text-[9px] font-black bg-slate-900 text-yellow-500 px-3 py-1 rounded-full mb-1 tracking-tighter">RISK: $0.00</p>
+                    <p class="text-[10px] font-bold opacity-60 italic">Total: <span id="totalLotsDisplay">0.00</span></p>
                 </div>
             </div>
-
-            <div id="tpList" class="space-y-2 border-t border-slate-900/10 pt-4 max-h-[30vh] overflow-y-auto"></div>
+            <div id="tpList" class="space-y-1 border-t border-slate-900/10 pt-4 max-h-[25vh] overflow-y-auto"></div>
         </div>
     </div>
 
@@ -96,7 +103,6 @@
         let splitCount = 2;
         let rates = { JPY: 156.40 };
 
-        // 智能粘贴逻辑
         async function smartPaste(id) {
             try {
                 const text = await navigator.clipboard.readText();
@@ -104,36 +110,32 @@
                 if (!isNaN(num)) {
                     document.getElementById(id).value = num;
                     calculate();
-                    showToast("已粘贴价格");
+                    showToast("PASTED");
                 }
             } catch (err) {
-                // 如果无法直接粘贴，则清空输入框并聚焦，方便用户手动长按粘贴
                 const el = document.getElementById(id);
-                el.value = "";
-                el.focus();
-                showToast("请手动长按粘贴");
+                el.value = ""; el.focus();
+                showToast("INPUT READY");
             }
         }
 
-        // 统一复制函数
         function copyText(id, label) {
             const val = document.getElementById(id).innerText;
             navigator.clipboard.writeText(val);
-            showToast(label + " " + val + " 已复制");
+            showToast("COPIED: " + val);
         }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 1500);
+            t.innerText = msg; t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 1000);
         }
 
         function setSplit(n) { splitCount = n; updateUI(); calculate(); }
 
         function updateUI() {
-            document.getElementById('split-2').className = splitCount === 2 ? 'flex-1 py-2 text-[10px] rounded-xl font-black split-btn-active' : 'flex-1 py-2 text-[10px] rounded-xl font-black text-slate-500 bg-transparent';
-            document.getElementById('split-10').className = splitCount === 10 ? 'flex-1 py-2 text-[10px] rounded-xl font-black split-btn-active' : 'flex-1 py-2 text-[10px] rounded-xl font-black text-slate-500 bg-transparent';
+            document.getElementById('split-2').className = splitCount === 2 ? 'flex-1 py-2 text-[10px] rounded-lg font-black split-btn-active' : 'flex-1 py-2 text-[10px] rounded-lg font-black text-slate-500 bg-transparent';
+            document.getElementById('split-10').className = splitCount === 10 ? 'flex-1 py-2 text-[10px] rounded-lg font-black split-btn-active' : 'flex-1 py-2 text-[10px] rounded-lg font-black text-slate-500 bg-transparent';
         }
 
         function calculate() {
@@ -141,13 +143,14 @@
             const entry = parseFloat(document.getElementById('entryPrice').value) || 0;
             const stop = parseFloat(document.getElementById('stopPrice').value) || 0;
             const sym = document.getElementById('symbol').value;
-            
             const gap = Math.abs(entry - stop);
             if(!risk || !entry || !stop || entry === stop) return;
 
-            let contractSize = 100; 
-            if (sym === "US500") contractSize = 1; 
+            // 合约规模设置
+            let contractSize = 100; // 默认
+            if (["US500", "NAS100", "US30", "DXY", "BTCUSD", "ETHUSD"].includes(sym)) contractSize = 1; 
             else if (sym === "XAGUSD") contractSize = 5000;
+            else if (sym === "USOIL") contractSize = 1000;
             else if (sym === "EURJPY") contractSize = 100 * (1000 / rates.JPY);
 
             let theoryTotalLots = risk / (gap * contractSize);
@@ -166,9 +169,9 @@
             items.forEach((r, i) => {
                 const label = splitCount === 2 ? (i===0?"保本位":"利润位") : (i<5?`目标 ${i+1}`:`冲刺 ${i-4}`);
                 const tpPrice = (entry + gap * r * dir).toFixed(dec);
-                tpHtml += `<div class="flex justify-between items-center bg-slate-900/5 p-3 rounded-xl mb-1 border border-slate-900/5 cursor-pointer active:scale-95 transition-transform" onclick="navigator.clipboard.writeText('${tpPrice}');showToast('TP已复制')">
-                    <div class="text-left"><p class="text-[8px] font-black opacity-40 uppercase">${label}</p><p class="text-sm font-black mono">${tpPrice}</p></div>
-                    <p class="text-[10px] font-black opacity-30 italic">${r.toFixed(2)}R</p>
+                tpHtml += `<div class="flex justify-between items-center bg-slate-900/5 p-2 rounded-xl mb-1 border border-slate-900/5 cursor-pointer active:bg-yellow-600/20" onclick="navigator.clipboard.writeText('${tpPrice}');showToast('TP COPIED')">
+                    <div class="text-left leading-none"><p class="text-[7px] font-black opacity-40 uppercase mb-0.5">${label}</p><p class="text-sm font-black mono">${tpPrice}</p></div>
+                    <p class="text-[9px] font-black opacity-30 italic">${r.toFixed(2)}R</p>
                 </div>`;
             });
             document.getElementById('tpList').innerHTML = tpHtml;
@@ -180,7 +183,7 @@
                 const data = await res.json();
                 if(data?.rates?.JPY) {
                     rates.JPY = data.rates.JPY;
-                    document.getElementById('usdjpyRate').innerText = rates.JPY.toFixed(2);
+                    document.getElementById('usdjpyRate').innerText = "USDJPY " + rates.JPY.toFixed(2);
                 }
             } catch(e) {}
             calculate();
