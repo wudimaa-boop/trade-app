@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>风控大师 Pro PC/Mobile</title>
+    <title>风控大师 · 旗舰版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Noto Sans SC', sans-serif; background: #111827; color: #f3f4f6; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 玻璃拟态 - 兼容PC深色背景 */
+        /* 玻璃拟态卡片 */
         .glass-card { 
             background: rgba(31, 41, 55, 0.7); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
@@ -18,49 +18,66 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        /* 输入框优化 */
+        /* 输入框样式 */
         input, select { 
             background: rgba(17, 24, 39, 0.6) !important; 
             color: #ffffff !important; 
             border: 1px solid rgba(255, 255, 255, 0.1) !important; 
             transition: all 0.2s ease;
-            cursor: text;
         }
-        /* 电脑端Focus状态更明显 */
         input:focus, select:focus {
             border-color: #eab308 !important;
             background: rgba(17, 24, 39, 0.9) !important;
             box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
         }
-        
+        /* 去掉数字输入框箭头 */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
+        /* 复制按钮 (输入框内) */
+        .copy-btn-inner {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 6px;
+            color: #6b7280;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .copy-btn-inner:hover {
+            color: #eab308;
+            background: rgba(255,255,255,0.05);
+        }
+        .copy-btn-inner:active {
+            transform: translateY(-50%) scale(0.9);
+            color: #eab308;
+        }
+
         /* 按钮状态 */
         .mode-btn-active { 
-            background: #eab308; 
-            color: #111827; 
-            font-weight: 800;
+            background: #eab308; color: #111827; font-weight: 800; 
             box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
         }
-        .mode-btn-inactive {
-            background: rgba(255, 255, 255, 0.05);
-            color: #9ca3af;
+        .mode-btn-inactive { 
+            background: rgba(255, 255, 255, 0.05); color: #9ca3af; 
         }
-        /* 电脑端Hover效果 */
+        
+        /* 列表悬停效果 */
         .hover-effect:hover {
             background-color: rgba(234, 179, 8, 0.15);
             border-color: rgba(234, 179, 8, 0.3);
             transform: translateY(-1px);
         }
 
-        /* 复制提示 Toast */
-        .copy-toast { 
-            position: fixed; top: 30px; left: 50%; transform: translateX(-50%); 
-            background: #eab308; color: #000; padding: 8px 24px; 
-            border-radius: 99px; font-weight: bold; font-size: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        /* 顶部提示条 */
+        .toast { 
+            position: fixed; top: 24px; left: 50%; transform: translateX(-50%); 
+            background: #eab308; color: #000; padding: 6px 20px; 
+            border-radius: 99px; font-weight: bold; font-size: 13px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
             display: none; z-index: 100; pointer-events: none;
-            animation: fadeInOut 1.5s ease-in-out forwards;
+            animation: fadeInOut 1.2s ease-in-out forwards;
         }
         @keyframes fadeInOut {
             0% { opacity: 0; transform: translate(-50%, -10px); }
@@ -72,31 +89,31 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-6">
 
-    <div id="toast" class="copy-toast">已复制</div>
+    <div id="toast" class="toast">已复制</div>
 
     <div class="w-full max-w-[420px] space-y-5">
         
         <div class="flex justify-between items-end px-2 select-none">
             <div>
-                <h1 class="text-3xl font-black text-yellow-500 italic tracking-tighter cursor-default">RISK<span class="text-white">MASTER</span></h1>
-                <p class="text-[10px] text-gray-500 font-bold tracking-[0.3em] uppercase mt-1">Universal Edition</p>
+                <h1 class="text-3xl font-black text-yellow-500 italic tracking-tighter cursor-default">风控大师</h1>
+                <p class="text-[10px] text-gray-400 font-bold tracking-[0.3em] uppercase mt-1">旗舰版 · 4.618</p>
             </div>
             <div onclick="updateRates()" class="text-right cursor-pointer py-1.5 px-3 rounded-lg hover:bg-white/5 transition-all group" title="点击刷新汇率">
-                <p class="text-[10px] text-gray-500 mb-0.5 group-hover:text-yellow-500 transition-colors">USDJPY RATE</p>
-                <p id="usdjpyRate" class="text-sm font-mono font-bold text-emerald-500">Connecting...</p>
+                <p class="text-[10px] text-gray-500 mb-0.5 group-hover:text-yellow-500 transition-colors">美元/日元 汇率</p>
+                <p id="usdjpyRate" class="text-sm font-mono font-bold text-emerald-500">连接中...</p>
             </div>
         </div>
 
         <div class="glass-card rounded-[2rem] p-8 space-y-6">
             
             <div>
-                <label class="text-xs font-bold text-gray-400 ml-1 mb-2 block uppercase tracking-wide">Risk Amount ($)</label>
+                <label class="text-xs font-bold text-gray-400 ml-1 mb-2 block">单笔止损金额 (USD)</label>
                 <input type="number" id="riskAmount" onclick="this.select()" class="w-full rounded-xl py-4 px-5 text-3xl font-black outline-none placeholder-gray-700 font-mono focus:ring-0" placeholder="0.00">
             </div>
 
             <div class="grid grid-cols-2 gap-5">
                 <div class="col-span-2">
-                    <label class="text-xs font-bold text-gray-400 ml-1 mb-2 block uppercase tracking-wide">Symbol</label>
+                    <label class="text-xs font-bold text-gray-400 ml-1 mb-2 block">交易品种</label>
                     <select id="symbol" class="w-full rounded-xl p-3.5 text-sm font-bold outline-none appearance-none cursor-pointer">
                         <option value="US500" selected>标普500 (US500) - 1X</option>
                         <option value="NAS100">纳斯达克 (US100) - 1X</option>
@@ -109,35 +126,45 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 ml-1 mb-2 block uppercase">Stop Loss (0)</label>
-                    <input type="number" id="stopPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3.5 font-bold outline-none text-lg">
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-gray-400 ml-1 mb-2 block uppercase">止损价格 (位置 0)</label>
+                    <div class="relative">
+                        <input type="number" id="stopPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3.5 font-bold outline-none text-lg pr-10">
+                        <div class="copy-btn-inner" onclick="copyInput('stopPrice')" title="复制价格">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 ml-1 mb-2 block uppercase">Entry Price (1)</label>
-                    <input type="number" id="entryPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3.5 font-bold outline-none text-lg">
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-gray-400 ml-1 mb-2 block uppercase">入场价格 (位置 1)</label>
+                    <div class="relative">
+                        <input type="number" id="entryPrice" step="any" onclick="this.select()" class="mono w-full rounded-xl p-3.5 font-bold outline-none text-lg pr-10">
+                        <div class="copy-btn-inner" onclick="copyInput('entryPrice')" title="复制价格">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="flex bg-gray-900/50 p-1.5 rounded-xl gap-1.5">
-                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-3 text-xs rounded-lg transition-all font-bold">2单模式</button>
-                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-3 text-xs rounded-lg transition-all font-bold">10单模式</button>
+                <button onclick="setSplit(2)" id="split-2" class="flex-1 py-3 text-xs rounded-lg transition-all font-bold">2 单模式</button>
+                <button onclick="setSplit(10)" id="split-10" class="flex-1 py-3 text-xs rounded-lg transition-all font-bold">10 单模式</button>
             </div>
         </div>
 
         <div class="bg-yellow-500 rounded-[2rem] p-8 text-gray-900 shadow-2xl shadow-yellow-500/10 transition-transform">
             <div class="flex justify-between items-start mb-6 select-none">
-                <div class="cursor-pointer group" onclick="copyValue('eachLot', '单笔手数')" title="点击复制手数">
-                    <p class="text-[10px] font-black opacity-60 uppercase mb-1 group-hover:opacity-100 transition-opacity">单笔手数 (Click Copy)</p>
+                <div class="cursor-pointer group" onclick="copyText('eachLot')" title="点击复制手数">
+                    <p class="text-[10px] font-black opacity-60 uppercase mb-1 group-hover:opacity-100 transition-opacity">单笔手数 (点击复制)</p>
                     <div class="flex items-baseline gap-1">
                         <span id="eachLot" class="text-6xl font-black tracking-tighter mono group-active:scale-95 transition-transform">0.00</span>
-                        <span class="text-sm font-black opacity-60">LOTS</span>
+                        <span class="text-sm font-black opacity-60">手</span>
                     </div>
                 </div>
                 <div class="text-right pt-2">
-                    <p id="actualRisk" class="text-[10px] font-black bg-gray-900 text-yellow-500 px-3 py-1.5 rounded mb-1">RISK: $0.00</p>
-                    <p class="text-[10px] font-bold opacity-60">TOTAL: <span id="totalLotsDisplay" class="mono">0.00</span></p>
+                    <p id="actualRisk" class="text-[10px] font-black bg-gray-900 text-yellow-500 px-3 py-1.5 rounded mb-1">风险: $0.00</p>
+                    <p class="text-[10px] font-bold opacity-60">总计: <span id="totalLotsDisplay" class="mono">0.00</span> 手</p>
                 </div>
             </div>
 
@@ -152,32 +179,36 @@
 
         function setSplit(n) { splitCount = n; updateUI(); calculate(); }
 
-        // 核心复制功能 (PC/手机通用)
-        function copyValue(text, label) {
-            // 如果传入的是ID，则取innerText
-            const val = document.getElementById(text) ? document.getElementById(text).innerText : text;
-            
-            navigator.clipboard.writeText(val).then(() => {
-                showToast(`已复制: ${val}`);
-            }).catch(err => {
-                console.error('复制失败', err);
-            });
+        // 复制纯文本 (用于手数和TP)
+        function copyText(idOrText) {
+            const val = document.getElementById(idOrText) ? document.getElementById(idOrText).innerText : idOrText;
+            doCopy(val);
+        }
+
+        // 复制输入框的值 (用于入场和止损)
+        function copyInput(id) {
+            const val = document.getElementById(id).value;
+            if(val) doCopy(val);
+        }
+
+        function doCopy(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`已复制: ${text}`);
+            }).catch(() => showToast("复制失败"));
         }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
-            // 重置动画
-            t.style.display = 'none';
-            t.offsetHeight; /* trigger reflow */
+            t.style.display = 'none'; t.offsetHeight; 
             t.style.display = 'block';
         }
 
         function updateUI() {
-            const activeClass = "mode-btn-active";
-            const inactiveClass = "mode-btn-inactive hover:bg-white/10";
-            document.getElementById('split-2').className = splitCount === 2 ? `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${activeClass}` : `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${inactiveClass}`;
-            document.getElementById('split-10').className = splitCount === 10 ? `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${activeClass}` : `flex-1 py-3 text-xs rounded-lg transition-all font-bold ${inactiveClass}`;
+            const active = "flex-1 py-3 text-xs rounded-lg transition-all font-bold mode-btn-active";
+            const inactive = "flex-1 py-3 text-xs rounded-lg transition-all font-bold mode-btn-inactive hover:bg-white/10";
+            document.getElementById('split-2').className = splitCount === 2 ? active : inactive;
+            document.getElementById('split-10').className = splitCount === 10 ? active : inactive;
         }
 
         function calculate() {
@@ -201,24 +232,26 @@
             
             document.getElementById('eachLot').innerText = realEachLot.toFixed(2);
             document.getElementById('totalLotsDisplay').innerText = (realEachLot * splitCount).toFixed(2);
-            document.getElementById('actualRisk').innerText = `RISK: $${(realEachLot * splitCount * gap * contractSize).toFixed(2)}`;
+            document.getElementById('actualRisk').innerText = `风险: $${(realEachLot * splitCount * gap * contractSize).toFixed(2)}`;
 
             let tpHtml = "";
             const dir = entry > stop ? 1 : -1;
             const dec = entry.toString().split('.')[1]?.length || 2;
             
-            // 策略参数
+            // 策略参数配置 (Coordinates Logic)
             let tpRatios = []; 
             if (splitCount === 2) {
-                tpRatios = [1.0, 3.236]; // 2单模式
+                // 2单模式: 位置 2.0 和 4.236
+                tpRatios = [1.0, 3.236]; 
             } else {
+                // 10单模式 (最终确认版):
                 tpRatios = [
-                    1.0, 1.0, 1.0, 1.0, 1.0, // 前5单
-                    1.382, // 6
-                    2.382, // 7 (密集)
-                    2.618, // 8 (密集)
-                    3.236, // 9
-                    3.618  // 10 (4.618位置)
+                    1.0, 1.0, 1.0, 1.0, 1.0, // 前5单 (位置 2.0)
+                    1.382, // 第6单 (位置 2.382)
+                    2.382, // 第7单 (位置 3.382)
+                    2.618, // 第8单 (位置 3.618)
+                    3.236, // 第9单 (位置 4.236)
+                    3.618  // 第10单 (位置 4.618)
                 ];
             }
             
@@ -227,16 +260,15 @@
                 let label = "";
                 
                 if(splitCount === 2) {
-                    label = `TP${i+1} (位置 ${position})`;
+                    label = `止盈 ${i+1} (位置 ${position})`;
                 } else {
-                    if (i < 5) label = `TP${i+1} (2.0 回收)`; 
-                    else label = `TP${i+1} (位置 ${position})`;
+                    if (i < 5) label = `止盈 ${i+1} (位置 2.0 回收)`; 
+                    else label = `止盈 ${i+1} (位置 ${position})`;
                 }
                 
                 const tpPrice = (entry + gap * r * dir).toFixed(dec);
                 
-                // 增加了 hover-effect 类，专为电脑端鼠标设计
-                tpHtml += `<div class="flex justify-between items-center bg-gray-900/10 p-3 rounded-xl mb-1.5 border border-gray-900/5 cursor-pointer hover-effect transition-all duration-200" onclick="copyValue('${tpPrice}', '价格')">
+                tpHtml += `<div class="flex justify-between items-center bg-gray-900/10 p-3 rounded-xl mb-1.5 border border-gray-900/5 cursor-pointer hover-effect transition-all duration-200" onclick="copyText('${tpPrice}')">
                     <div class="text-left"><p class="text-[9px] font-bold opacity-50 uppercase mb-0.5 tracking-wider">${label}</p><p class="text-base font-black mono">${tpPrice}</p></div>
                     <p class="text-[10px] font-bold opacity-30 mono italic">${position}</p>
                 </div>`;
@@ -254,9 +286,7 @@
                     rates.JPY = data.rates.JPY;
                     el.innerText = "USDJPY " + rates.JPY.toFixed(2);
                 }
-            } catch(e) {
-                el.innerText = "Error";
-            }
+            } catch(e) { el.innerText = "连接失败"; }
             calculate();
         }
 
